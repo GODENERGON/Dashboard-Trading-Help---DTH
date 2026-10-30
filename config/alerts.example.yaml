@@ -1,0 +1,14 @@
+# Regole di alert (implementazione in M2). Ogni regola ha una chiave univoca e un cooldown.
+rules:
+  - key: signal_change
+    when: "il peso target di uno strumento cambia di oltre 5 punti"
+    cooldown_hours: 24
+  - key: drawdown_warning
+    when: "drawdown di portafoglio <= dd_warning (RISK_POLICY)"
+    cooldown_hours: 24
+  - key: stress_regime
+    when: "VIX/VIX3M > 1 (struttura a termine in backwardation)"
+    cooldown_hours: 12
+  - key: stale_data
+    when: "una fonte non è aggiornata da oltre 2 giorni lavorativi"
+    cooldown_hours: 24
