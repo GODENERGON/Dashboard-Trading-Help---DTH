@@ -1,10 +1,12 @@
 name: windows-release
 
 # Builds the Windows installer (Tauri shell + packaged Python engine).
-# Push a tag like v0.1.0 to publish a pre-release; run manually to just build.
+# Publishes a pre-release when a tag v* is pushed or when the `release` branch is updated
+# (then the tag is v<version in tauri.conf.json>). Run manually to just build.
 on:
   push:
     tags: ["v*"]
+    branches: [release]
   workflow_dispatch:
 
 permissions:
@@ -85,6 +87,7 @@ jobs:
           $size = [math]::Round((Get-Item "out\$name").Length / 1MB, 1)
           Write-Host "installer $name ($size MB)"
           "name=$name" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
       - uses: actions/upload-artifact@v4
         with:
           name: dabitur-windows
@@ -92,11 +95,17 @@ jobs:
           retention-days: 30
 
       - name: Publish pre-release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'push'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" "out\${{ steps.collect.outputs.name }}" `
-            --prerelease --title "Dabitur ${{ github.ref_name }} (versione di prova)" `
-            --notes-file docs/RELEASE_NOTES.md
+          $tag = if ("${{ github.ref_type }}" -eq "tag") { "${{ github.ref_name }}" } else { "v${{ steps.collect.outputs.version }}" }
+          $file = "out\${{ steps.collect.outputs.name }}"
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag $file --clobber
+          } else {
+            gh release create $tag $file --target "${{ github.sha }}" --prerelease `
+              --title "Dabitur $tag (versione di prova)" --notes-file docs/RELEASE_NOTES.md
+          }
