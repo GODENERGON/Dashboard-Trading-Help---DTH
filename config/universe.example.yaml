@@ -1,32 +1,52 @@
-# Universo di esempio: ETF UCITS acquistabili da un retail in Italia.
-# `proxy` = strumento con storia più lunga, usato SOLO nei backtest.
-# Verificare ticker, borsa di quotazione e KID prima dell'uso (vedi docs/OPEN_QUESTIONS.md).
+# Universo proposto da zero (2026-11-06) per la strategia trend-following / dual momentum.
+# Criteri: ETF UCITS (o ETC) acquistabili da un retail in Italia, quotati su Borsa Italiana,
+# ad accumulazione dove possibile, molto liquidi, che coprano asset class poco correlate tra loro.
+# `proxy`  = strumento USA con storia più lunga, usato SOLO nei backtest prima della nascita dell'UCITS.
+# `tax_category` = chiave di config/tax.it.example.yaml.
+# DA VERIFICARE prima dell'uso: ticker, borsa, TER, KID disponibile presso il broker scelto.
 name: ucits-core
 instruments:
+  # Azioni
   - symbol: SWDA.MI
     name: iShares Core MSCI World UCITS (Acc)
     asset_class: equity
     proxy: URTH
+    tax_category: etf_ucits
   - symbol: CSPX.MI
     name: iShares Core S&P 500 UCITS (Acc)
     asset_class: equity
     proxy: SPY
-  - symbol: EIMI.MI
-    name: iShares Core MSCI EM IMI UCITS (Acc)
-    asset_class: equity
-    proxy: EEM
+    tax_category: etf_ucits
   - symbol: MEUD.MI
     name: Amundi Core Stoxx Europe 600 UCITS (Acc)
     asset_class: equity
     proxy: VGK
+    tax_category: etf_ucits
+  - symbol: EIMI.MI
+    name: iShares Core MSCI EM IMI UCITS (Acc)
+    asset_class: equity
+    proxy: EEM
+    tax_category: etf_ucits
+  # Immobiliare quotato
+  - symbol: IWDP.MI
+    name: iShares Developed Markets Property Yield UCITS
+    asset_class: real_estate
+    proxy: VNQ
+    tax_category: etf_ucits
+  # Obbligazioni
   - symbol: IBGL.MI
     name: iShares Euro Government Bond 15-30yr UCITS
     asset_class: bond
     proxy: TLT
+    tax_category: etf_ucits
+  # Oro (ETC: plusvalenze in redditi diversi, compensabili)
   - symbol: SGLD.MI
     name: Invesco Physical Gold ETC
     asset_class: commodity
     proxy: GLD
+    tax_category: etc_etn
+  # Liquidità (rifugio quando nessun asset ha momentum positivo)
   - symbol: XEON.MI
     name: Xtrackers II EUR Overnight Rate Swap UCITS
     asset_class: cash
+    tax_category: etf_ucits

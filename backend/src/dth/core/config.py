@@ -32,6 +32,9 @@ class Instrument(BaseModel):
     proxy: str | None = Field(
         default=None, description="Longer-history instrument used for backtests only"
     )
+    tax_category: str | None = Field(
+        default=None, description="Key of config/tax.it.example.yaml categories (ADR 0008)"
+    )
 
 
 class Universe(BaseModel):

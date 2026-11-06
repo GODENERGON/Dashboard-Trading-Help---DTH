@@ -15,6 +15,11 @@ Nessun segnale arriva in UI senza un `ValidationReport` che soddisfi i criteri q
    isolato. Si riporta la mediana della griglia, non il migliore.
 6. **Test di significatività** (P1): Deflated Sharpe Ratio (corregge per il numero di prove) e
    bootstrap a blocchi dell'equity curve.
+7. **Al netto delle imposte** (M2, [ADR 0008](adr/0008-accounts-brokers-and-tax-ledger.md)):
+   il backtest applica le regole di `config/tax.it.example.yaml` per categoria fiscale. Per gli
+   ETF le plusvalenze sono tassate a ogni vendita e le minusvalenze non le compensano: una
+   strategia con molto turnover può essere buona al lordo e mediocre al netto. Si riportano
+   entrambe le versioni; lo stato `validated` si decide sul netto.
 
 ## Criteri minimi per lo stato `validated`
 

@@ -348,7 +348,7 @@ sources:
     reliability: C
     status: planned
 
-  # ── Portali di trading (sola lettura, ADR 0005) ─────────────────────────────
+  # ── Broker (regime dichiarativo, sola lettura, ADR 0005 e 0008) ─────────────
   - id: ibkr
     name: Interactive Brokers
     kind: portal
@@ -356,31 +356,119 @@ sources:
     url: https://www.interactivebrokers.com
     access: api
     cost: account
-    auth: account
+    auth: key
     reliability: A
     status: planned
-  - id: directa
-    name: Directa SIM
+    notes: >-
+      Connettore tramite Flex Web Service (token + query di sola lettura, non serve TWS aperto).
+      Regime dichiarativo; report fiscale annuale disponibile.
+  - id: degiro
+    name: DEGIRO
     kind: portal
     categories: [portfolio]
-    url: https://www.directa.it
-    access: api
+    url: https://www.degiro.it
+    access: csv
     cost: account
-    auth: account
+    auth: none
     reliability: A
     status: planned
-    notes: Verificare disponibilità e condizioni delle API per la lettura delle posizioni.
-  - id: ccxt_exchanges
-    name: Exchange crypto via ccxt (Kraken, Coinbase, Bitstamp…)
+    notes: Nessuna API ufficiale. Import dei CSV "Portafoglio" e "Transazioni" esportati dal sito.
+  - id: scalable
+    name: Scalable Capital
+    kind: portal
+    categories: [portfolio]
+    url: https://it.scalable.capital
+    access: csv
+    cost: account
+    auth: none
+    reliability: A
+    status: planned
+    notes: Nessuna API ufficiale. Import del CSV delle transazioni. Verificare il regime fiscale offerto al momento dell'apertura.
+
+  # ── Exchange crypto (sola lettura, chiavi senza trading né prelievo) ────────
+  - id: coinbase
+    name: Coinbase
     kind: portal
     categories: [portfolio, crypto]
-    url: https://github.com/ccxt/ccxt
+    url: https://www.coinbase.com
     access: api
     cost: account
     auth: key
     reliability: B
     status: planned
-    notes: Chiavi solo lettura, senza prelievo.
+    notes: Autorizzata MiCA (CASP, Lussemburgo). Connettore via ccxt.
+  - id: binance
+    name: Binance
+    kind: portal
+    categories: [portfolio, crypto]
+    url: https://www.binance.com
+    access: api
+    cost: account
+    auth: key
+    reliability: C
+    status: planned
+    notes: Connettore via ccxt, utile solo per monitorare e trasferire eventuali fondi residui.
+    warning: >-
+      Senza licenza MiCA: dal 1° luglio 2026 deve cessare l'attività ordinaria verso i clienti
+      italiani. Verificare lo stato prima di lasciare fondi sulla piattaforma.
+  - id: bitfinex
+    name: Bitfinex
+    kind: portal
+    categories: [portfolio, crypto]
+    url: https://www.bitfinex.com
+    access: api
+    cost: account
+    auth: key
+    reliability: C
+    status: planned
+    notes: Connettore via ccxt.
+    warning: Nessuna autorizzazione MiCA pubblica risultante a novembre 2026. Verificare lo stato.
+  - id: kraken
+    name: Kraken
+    kind: portal
+    categories: [portfolio, crypto]
+    url: https://www.kraken.com
+    access: api
+    cost: account
+    auth: key
+    reliability: B
+    status: planned
+    notes: Alternativa autorizzata MiCA (CASP, Irlanda). Connettore via ccxt.
+  - id: bitpanda
+    name: Bitpanda
+    kind: portal
+    categories: [portfolio, crypto]
+    url: https://www.bitpanda.com
+    access: api
+    cost: account
+    auth: key
+    reliability: B
+    status: planned
+    notes: Alternativa europea con licenza MiCA. Verificare il supporto in ccxt o usare l'import CSV.
+
+  # ── Inserimento manuale e import generico ───────────────────────────────────
+  - id: manual
+    name: Inserimento manuale
+    kind: portal
+    categories: [portfolio, startups, real_estate]
+    url: https://github.com/GODENERGON/Dashboard-Trading-Help---DTH
+    access: manual
+    cost: free
+    auth: none
+    reliability: A
+    status: active
+    notes: Posizioni, operazioni e investimenti non collegabili (startup, crowdfunding, immobili).
+  - id: csv_generic
+    name: Import CSV generico
+    kind: portal
+    categories: [portfolio]
+    url: https://github.com/GODENERGON/Dashboard-Trading-Help---DTH
+    access: csv
+    cost: free
+    auth: none
+    reliability: B
+    status: active
+    notes: Qualsiasi estratto conto in CSV, con mappatura guidata delle colonne.
 
   # ── LLM (opzionali, con l'account dell'utente) ──────────────────────────────
   - id: anthropic

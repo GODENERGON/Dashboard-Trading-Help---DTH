@@ -26,9 +26,14 @@ Poche cose, ma installabili e funzionanti dall'inizio alla fine.
   almeno un feedback; nessun crash bloccante.
 
 ## M2 — Strategie e rischio
-- Porting di `backtest_trend_refined.py` nel contratto `Signal`; universo UCITS definitivo.
-- Tab **Strategie** con schede di validazione reali; tab **Portafoglio** con inserimento manuale,
-  limiti di rischio (inclusi crypto ≤ 10%, startup ≤ 15%), quota non liquidabile, stress test.
+- Porting di `backtest_trend_refined.py` nel contratto `Signal` (se recuperato) oppure
+  strategia trend scritta da zero sull'universo proposto; backtest al lordo e **al netto delle
+  imposte**.
+- Tab **Strategie** con schede di validazione reali.
+- Tab **Portafoglio**: conti con inserimento manuale e import CSV (DEGIRO, Scalable, generico),
+  limiti di rischio (crypto ≤ 10%, startup ≤ 15%), quota non liquidabile, stress test
+  ([ADR 0008](adr/0008-accounts-brokers-and-tax-ledger.md)).
+- Tab **Fiscale**: registro plus/minus, scadenze delle minusvalenze, IVAFE e IVCA, export CSV.
 - Correzioni e priorità dal feedback del tester.
 - **Uscita:** report di validazione reale della strategia trend; tempo di decisione < 5 minuti.
 
@@ -43,7 +48,8 @@ Poche cose, ma installabili e funzionanti dall'inizio alla fine.
 - **Uscita:** ogni pannello ha fonte, aggiornamento e test; nessun modello attivo con skill ≤ 0.
 
 ## M4 — Connettori e paper trading
-- Connettori in sola lettura: broker scelto, exchange crypto (ccxt), crowdfunding dove possibile.
+- Connettori in sola lettura: Interactive Brokers (Flex Web Service), Coinbase, Binance,
+  Bitfinex, Kraken, Bitpanda (ccxt), crowdfunding dove possibile; avvisi di piattaforma.
 - Patrimonio aggregato, look-through degli ETF, riconciliazione.
 - Paper trading per le strategie `validated`.
 - **Uscita:** 3 mesi di paper con tracking error accettabile e riconciliazione senza errori.

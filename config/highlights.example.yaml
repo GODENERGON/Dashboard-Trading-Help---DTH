@@ -19,6 +19,11 @@ rules:
     level: critical
     when: "crypto oltre il 10% o startup e crowdfunding oltre il 15% del patrimonio (ADR 0006)"
     locked: true
+  - id: platform_warning
+    category: risk
+    level: critical
+    when: "ci sono fondi su una piattaforma con `warning` nel registro fonti (es. senza licenza MiCA)"
+    locked: true
   - id: concentration
     category: risk
     level: attention
@@ -79,6 +84,16 @@ rules:
     level: attention
     when: "spread BTP-Bund sopra la soglia impostata dall'utente"
     cooldown_hours: 24
+
+  # ── Fiscale ─────────────────────────────────────────────────────────────────
+  - id: loss_expiry
+    category: tax
+    level: attention
+    when: "una minusvalenza registrata scade entro il 31 dicembre dell'anno in corso"
+  - id: tax_rules_stale
+    category: tax
+    level: attention
+    when: "config/tax.it.example.yaml non è stato verificato da oltre 12 mesi"
 
   # ── Dati ────────────────────────────────────────────────────────────────────
   - id: stale_source

@@ -22,7 +22,7 @@ Ogni fonte dichiara:
 > fonti `web` serve controllare che l'uso automatizzato sia consentito; in caso contrario restano
 > come link manuali.
 
-## Sintesi per categoria (stato del registro al 2026-11-06)
+## Sintesi per categoria (stato del registro al 2026-11-06, verifiche MiCA e fiscali incluse)
 
 | Categoria | Fonti principali | Affidabilità |
 |---|---|---|
@@ -36,7 +36,9 @@ Ogni fonte dichiara:
 | IPO e filing | SEC EDGAR, Nasdaq IPO calendar, Borsa Italiana, Consob | A / B |
 | Startup | Mamacrowd, Crowdcube, Dealroom (a pagamento, disattivata) | B |
 | Notizie | GDELT, comunicati BCE e Fed, Consob, Il Sole 24 Ore (RSS) | A / B |
-| Portali (sola lettura) | IBKR, Directa, exchange crypto via ccxt | A / B |
+| Broker (sola lettura) | Interactive Brokers (Flex Web Service), DEGIRO e Scalable Capital (CSV) | A |
+| Exchange crypto (sola lettura) | Coinbase, Kraken, Bitpanda (MiCA); Binance, Bitfinex con avviso | B / C |
+| Inserimento manuale e CSV generico | Per tutto ciò che non si collega | — |
 | LLM (opzionali) | Anthropic, OpenAI, Ollama locale | — |
 
 ## Modelli per serie storiche (plug-in)

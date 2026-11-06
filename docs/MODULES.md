@@ -7,7 +7,7 @@ Legenda del tipo: 🅸 informazione, 🆂 segnale ([ADR 0004](adr/0004-informati
 ## Struttura delle tab
 
 ```
-Panoramica │ Temi │ Startup │ IPO │ Materie prime │ Confronti │ Portafoglio │ Strategie │ Modelli │ Fonti │ Impostazioni
+Panoramica │ Temi │ Startup │ IPO │ Materie prime │ Confronti │ Portafoglio │ Fiscale │ Strategie │ Modelli │ Fonti │ Impostazioni
 ```
 
 ---
@@ -105,18 +105,54 @@ Strumenti di grafico per mettere le informazioni in relazione tra loro:
 - **Stagionalità** e distribuzione dei rendimenti (code, skew).
 Le viste si salvano come preferite.
 
-## 7. Portafoglio — P1 (manuale) / P2 (connettori)
-- Posizioni e saldi da broker, exchange e piattaforme di crowdfunding (sola lettura,
-  [ADR 0005](adr/0005-read-only-connectors-and-secrets.md)) o inserimento manuale.
+## 7. Portafoglio — P1 (manuale e CSV) / P2 (connettori) ([ADR 0008](adr/0008-accounts-brokers-and-tax-ledger.md))
+
+### Conti
+Un elenco di conti, ciascuno collegato a una piattaforma del registro fonti. Tre modi per
+alimentarlo, dal più semplice:
+1. **Inserimento manuale** di posizioni e operazioni (sempre disponibile, anche per startup,
+   crowdfunding e immobili).
+2. **Import CSV** dell'estratto conto, con mappatura guidata delle colonne (DEGIRO, Scalable
+   Capital, generico).
+3. **Connettore in sola lettura** ([ADR 0005](adr/0005-read-only-connectors-and-secrets.md)).
+
+| Piattaforma | Tipo | Collegamento |
+|---|---|---|
+| Interactive Brokers | Broker, dichiarativo | Flex Web Service (token di sola lettura) |
+| DEGIRO | Broker, dichiarativo | Import CSV |
+| Scalable Capital | Broker | Import CSV |
+| Coinbase | Exchange crypto, autorizzato MiCA | API via ccxt |
+| Binance | Exchange crypto, **senza licenza MiCA** | API via ccxt, con avviso |
+| Bitfinex | Exchange crypto, **nessuna autorizzazione MiCA risultante** | API via ccxt, con avviso |
+| Kraken, Bitpanda | Alternative autorizzate MiCA | API via ccxt / CSV |
+
+Ogni piattaforma con un `warning` nel registro mostra l'avviso nella scheda del conto e, se ci
+sono fondi, accende la regola critica `platform_warning`.
+
+### Analisi
 - Patrimonio aggregato per asset class, valuta, area geografica, piattaforma.
+- Quota **non liquidabile a breve** (startup, crowdfunding, immobili) separata dal resto.
+- Limiti di peso: crypto ≤ 10%, startup ≤ 15% ([ADR 0006](adr/0006-crypto-and-startup-allocation-limits.md)).
 - **Look-through degli ETF**: lo stesso titolo presente in più ETF (rischio di concentrazione
   nascosto).
 - Esposizione valutaria (quota in USD, effetto EUR/USD).
-- **Vista fiscale italiana**: plusvalenze e minusvalenze realizzate, minus da recuperare e loro
-  scadenze, distinzione tra redditi di capitale e redditi diversi (da validare con un
-  commercialista).
 - **Stress test**: impatto sul portafoglio di scenari storici (2008, 2020, 2022) e ipotetici.
 - **Journal e checklist pre-trade**: regime, sizing, motivazione, scritti prima dell'acquisto.
+
+## 7b. Fiscale — P1 ([ADR 0008](adr/0008-accounts-brokers-and-tax-ledger.md))
+Registro di plusvalenze e minusvalenze per il regime dichiarativo. Regole in
+[`config/tax.it.example.yaml`](../config/tax.it.example.yaml), datate e con fonte.
+- **Registro operazioni realizzate**: data, strumento, categoria fiscale, plus o minus, aliquota.
+  Si alimenta da solo con le vendite registrate nei conti; si può correggere a mano.
+- **Due colonne separate**: redditi di capitale (es. plusvalenze da ETF, non compensabili) e
+  redditi diversi (azioni, ETC, crypto, minusvalenze compensabili).
+- **Minusvalenze da recuperare** con la data di scadenza (fine del quarto anno successivo) e la
+  regola `loss_expiry` quando una sta per scadere.
+- **Imposte stimate dell'anno**: sostitutive (26%, 12,5% sui titoli di Stato, 33% sulle crypto)
+  e patrimoniali (IVAFE 0,2% sulle attività estere, IVCA 0,2% sulle crypto).
+- **Simulatore "se vendo oggi"**: imposta stimata e minusvalenze che verrebbero usate.
+- **Export CSV per il commercialista.**
+- Avviso fisso: stima indicativa, non consulenza fiscale.
 
 ## 8. Strategie — P0
 - Strategie sistematiche (trend-following multi-ETF, dual momentum top-K…), stato `research` →

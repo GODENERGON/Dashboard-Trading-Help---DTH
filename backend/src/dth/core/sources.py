@@ -65,6 +65,7 @@ class Source(BaseModel):
     reliability: str
     status: Status
     notes: str | None = None
+    warning: str | None = None  # shown to the user, e.g. missing MiCA authorisation
 
     @field_validator("categories")
     @classmethod

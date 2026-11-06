@@ -24,6 +24,14 @@ def test_every_user_category_has_a_source() -> None:
         assert reg.by_category(cat, include_inactive=True), f"no source for {cat}"
 
 
+def test_owner_portals_present_and_unlicensed_flagged() -> None:
+    reg = load_registry(EXAMPLE)
+    for pid in ("ibkr", "degiro", "scalable", "binance", "coinbase", "bitfinex", "manual"):
+        assert reg.get(pid).kind is SourceKind.PORTAL
+    assert reg.get("binance").warning and reg.get("bitfinex").warning
+    assert reg.get("coinbase").warning is None
+
+
 def test_llm_sources_are_off_by_default() -> None:
     reg = load_registry(EXAMPLE)
     llms = [s for s in reg.sources if s.kind is SourceKind.LLM]

@@ -1,0 +1,75 @@
+# Regole fiscali italiane usate dalla tab "Fiscale" e dal backtest al netto delle imposte (ADR 0008).
+# NON è consulenza fiscale: da far verificare a un commercialista prima dell'uso reale.
+# Le regole cambiano: la regola di evidenza `tax_rules_stale` scatta 12 mesi dopo `verified_on`.
+country: IT
+regime: dichiarativo
+verified_on: 2026-11-06
+sources:
+  - https://rankia.it/tassazione-bitcoin-tasse-su-criptovalute
+  - https://www.money.it/tassazione-criptovalute-come-funziona-aliquote-calcoli
+  - https://quantroutine.com/brokers/best-broker-italy/
+
+# Categoria fiscale di ogni strumento (campo `tax_category` in config/universe.example.yaml)
+categories:
+  etf_ucits:
+    description: ETF ed OICR armonizzati
+    gains: redditi_di_capitale    # plusvalenze NON compensabili con minusvalenze pregresse
+    losses: redditi_diversi       # minusvalenze compensabili solo con redditi diversi
+    rate: 0.26
+    reduced_rate_share: govt_bonds_share   # quota in titoli di Stato e white list al 12,5%
+  stock:
+    description: Azioni
+    gains: redditi_diversi
+    losses: redditi_diversi
+    rate: 0.26
+  etc_etn:
+    description: ETC, ETN e certificati (es. oro fisico ETC)
+    gains: redditi_diversi        # compensabili: utile per assorbire minusvalenze
+    losses: redditi_diversi
+    rate: 0.26
+  govt_bond:
+    description: Titoli di Stato italiani e di Paesi white list
+    gains: redditi_diversi
+    losses: redditi_diversi
+    rate: 0.125
+  crypto:
+    description: Cripto-attività (Bitcoin, altcoin, stablecoin non in euro)
+    gains: redditi_diversi
+    losses: redditi_diversi
+    rate: 0.33                    # dal 1° gennaio 2026; nessuna franchigia
+  crypto_emt_eur:
+    description: Token di moneta elettronica in euro conformi MiCA
+    gains: redditi_diversi
+    losses: redditi_diversi
+    rate: 0.26
+  crypto_etp:
+    description: ETP/ETN su crypto quotati
+    gains: redditi_diversi
+    losses: redditi_diversi
+    rate: 0.26
+  startup_equity:
+    description: Partecipazioni in startup e crowdfunding
+    gains: redditi_diversi
+    losses: redditi_diversi
+    rate: 0.26
+    notes: "Possibili agevolazioni per startup innovative, da verificare caso per caso."
+
+losses_carry_forward:
+  years: 4                        # fino al quarto periodo d'imposta successivo
+  expires_on: "31-12"
+
+wealth_taxes:
+  ivafe:
+    description: Imposta sul valore delle attività finanziarie detenute all'estero
+    rate: 0.002                   # annua, sul valore di mercato a fine anno
+    applies_to: [etf_ucits, stock, etc_etn, govt_bond]
+  ivca:
+    description: Imposta sul valore delle cripto-attività
+    rate: 0.002
+    applies_to: [crypto, crypto_emt_eur]
+
+filing:
+  notes: >-
+    In regime dichiarativo i redditi e il monitoraggio delle attività estere si indicano nella
+    dichiarazione (quadri RT, RM e RW; per le crypto anche il monitoraggio fiscale). Quadri e
+    modalità da confermare con il commercialista.
