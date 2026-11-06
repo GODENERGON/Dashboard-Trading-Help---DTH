@@ -12,7 +12,15 @@ soddisfatti. Priorità attuale: **avere presto una build installabile per il pri
 
 ## M1 — Prima build per il tester ("fetta verticale")
 Poche cose, ma installabili e funzionanti dall'inizio alla fine.
-- Shell Tauri + sidecar Python (PyInstaller), installer `.msi`, CI di build su Windows,
+
+**Stato al 06/11/2026: fatto (M1a)** — shell Tauri + motore PyInstaller, installer NSIS per
+utente senza permessi di amministratore, CI `windows-release` con smoke test del motore e
+pre-release su GitHub, seme di prezzi incluso + aggiornamento automatico da Yahoo, motore delle
+regole (drawdown dell'esempio, dati vecchi/fonte rotta; regime disattivato), guida al primo
+avvio, feedback salvato sul PC (e-mail opzionale da segreto di build), Panoramica e Prodotti.
+**Resta per M1b:** aggiornamento automatico dell'app, Stooq/BCE/World Bank/VIX, tab Materie
+prime, Confronti, Startup, Fonti, glossario.
+- Shell Tauri + sidecar Python (PyInstaller), installer `.exe` (NSIS), CI di build su Windows,
   pubblicazione su GitHub Releases, aggiornamento automatico.
 - Primo avvio guidato, glossario contestuale, pulsante "Invia feedback".
 - Fonti gratuite senza chiave: prezzi (yfinance + Stooq per l'incrocio), BCE, World Bank (materie

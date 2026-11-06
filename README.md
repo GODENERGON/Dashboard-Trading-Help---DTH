@@ -12,14 +12,14 @@ dell'utente, e **si colora solo quando una regola esplicita trova qualcosa da co
 
 ## Installazione su Windows
 
-> La prima versione installabile arriverà con la milestone M1 (vedi [`docs/ROADMAP.md`](docs/ROADMAP.md)).
-> Questa guida vale da quel momento. Serve Windows 10 o 11 a 64 bit; non serve installare altro.
+> Serve Windows 10 o 11 a 64 bit; non serve installare altro. L'app pesa circa 150 MB una volta
+> installata e non chiede la password di amministratore.
 
 ### 1. Scarica l'installer
 
 1. Apri la pagina [Releases](https://github.com/GODENERGON/Dashboard-Trading-Help---DTH/releases).
-2. Nell'ultima versione, sotto **Assets**, scarica il file che finisce con **`.msi`**
-   (per esempio `Dabitur_0.1.0_x64_it-IT.msi`).
+2. Nell'ultima versione, sotto **Assets**, scarica il file **`Dabitur-Setup-….exe`**
+   (per esempio `Dabitur-Setup-0.1.0.exe`).
 
 Il browser potrebbe avvisarti che il file "non viene scaricato comunemente". È normale per
 un'app nuova e senza certificato.
@@ -29,15 +29,14 @@ un'app nuova e senza certificato.
 
 ### 2. Avvia l'installazione e supera l'avviso di Windows
 
-1. Fai doppio clic sul file `.msi` scaricato.
+1. Fai doppio clic sul file `Dabitur-Setup-….exe` scaricato.
 2. Comparirà una finestra blu **"Windows ha protetto il PC"**. Succede perché l'app non ha
    ancora un certificato di firma a pagamento, non perché sia pericolosa.
 3. Clicca **Ulteriori informazioni** (il link sotto il testo).
 4. Clicca **Esegui comunque**.
-5. Se Windows chiede **"Vuoi consentire a questa app di apportare modifiche?"**, clicca **Sì**.
-6. Segui l'installazione con **Avanti** fino a **Fine**.
+5. Segui l'installazione con **Avanti** fino a **Fine**.
 
-Dabitur compare nel menu Start e, se l'hai scelto, sul desktop.
+Dabitur compare nel menu Start.
 
 ### Se Windows blocca l'app senza il pulsante "Esegui comunque"
 
@@ -53,9 +52,11 @@ sistema. Se preferisci non disattivarlo, scrivimi: aspettiamo la versione firmat
 
 ### Primo avvio, aggiornamenti, disinstallazione
 
-- Al primo avvio una breve guida in tre passi ti chiede quali temi ti interessano. Non servono
-  account né chiavi: l'app parte con le fonti gratuite.
-- Gli aggiornamenti arrivano da soli: quando c'è una nuova versione, l'app chiede se installarla.
+- Al primo avvio una breve guida in tre passi spiega come leggere la schermata. Non servono
+  account né chiavi: l'app parte con i prezzi già inclusi e poi li aggiorna da internet da sola.
+- Il primo avvio può richiedere una decina di secondi: Windows controlla i file dell'app.
+- Le nuove versioni, per ora, si installano scaricando di nuovo il file dalla pagina Releases e
+  aprendolo: sostituisce la versione precedente e mantiene i tuoi dati.
 - Per lasciare un commento usa il pulsante **Invia feedback** in basso a sinistra.
 - Per disinstallare: **Impostazioni** → **App** → **App installate** → **Dabitur** → **Disinstalla**.
   I dati restano nella cartella `%LOCALAPPDATA%\Dabitur`, che puoi cancellare a mano.
@@ -111,7 +112,8 @@ backend/            Pacchetto Python `dth` (API, ingestione, segnali, backtest, 
     alerts/         Notifiche
     api/            FastAPI
   tests/            Test unitari + harness anti-lookahead
-frontend/           Interfaccia React (prototipo metallo liquido; shell Tauri in M1)
+frontend/           Interfaccia React (stile metallo liquido)
+  src-tauri/        Shell desktop Tauri: avvia il motore Python e crea l'installer
 config/             Universo, registro fonti, regole di evidenza, alert (esempi)
 docs/               Documentazione di progetto
 ```
@@ -122,7 +124,9 @@ docs/               Documentazione di progetto
 make install        # crea venv e installa backend in modalità sviluppo
 make test           # test + harness anti-lookahead
 make lint           # ruff
-make api            # avvia l'API su http://localhost:8000 (docs su /docs)
+make api            # avvia il motore su http://127.0.0.1:8765 (docs su /docs)
+cd frontend && npm run dev          # interfaccia nel browser, collegata al motore
+cd frontend && npm run tauri dev    # app desktop in sviluppo (serve Rust)
 make backtest       # esegue un walk-forward di esempio su dati sintetici
 # studio su dati reali (serve internet): python -m dth.cli ucits-trend
 # oppure da GitHub: Actions → research → Run workflow
@@ -134,8 +138,11 @@ make backtest       # esegue un walk-forward di esempio su dati sintetici
 
 **Fase 0 — Harness** completata. Strategie testate su dati reali, nessuna validata al netto
 delle tasse finora: [trend multi-asset](docs/research/2026-11-06-ucits-trend.md),
-[core-satellite e regime](docs/research/2026-11-06-core-satellite-results.md) (pre-registrati). L'applicativo (UI e pannelli) non è ancora costruito. Prossimo passo: la prima build
-installabile per un tester (milestone M1).
+[core-satellite e regime](docs/research/2026-11-06-core-satellite-results.md) (pre-registrati).
+
+**M1, prima versione installabile**: installer Windows costruito da GitHub Actions
+(`windows-release`, a ogni tag `v*`), Panoramica e Prodotti con dati reali, aggiornamento
+automatico dei prezzi, guida al primo avvio, feedback. Le altre sezioni arrivano da M2.
 
 ## Disclaimer
 

@@ -25,7 +25,7 @@ test:
 check: lint test
 
 api:
-	$(PY) -m uvicorn dth.api.main:app --reload --port 8000
+	$(PY) -m uvicorn dth.api.main:app --reload --host 127.0.0.1 --port 8765
 
 backtest:
 	$(PY) -m dth.cli backtest-demo
