@@ -1,0 +1,66 @@
+[
+  {
+    "symbol": "SWDA.MI",
+    "first_ucits": "2009-09-25",
+    "proxy": "URTH",
+    "first_date": "2009-09-25",
+    "spliced_days": 0,
+    "suspicious_jumps": 0
+  },
+  {
+    "symbol": "CSSPX.MI",
+    "first_ucits": "2010-05-19",
+    "proxy": "SPY",
+    "first_date": "2004-01-02",
+    "spliced_days": 1605,
+    "suspicious_jumps": 0
+  },
+  {
+    "symbol": "MEUD.MI",
+    "first_ucits": "2024-02-19",
+    "proxy": "VGK",
+    "first_date": "2005-03-10",
+    "spliced_days": 4767,
+    "suspicious_jumps": 0
+  },
+  {
+    "symbol": "EIMI.MI",
+    "first_ucits": "2014-07-24",
+    "proxy": "EEM",
+    "first_date": "2004-01-02",
+    "spliced_days": 2657,
+    "suspicious_jumps": 0
+  },
+  {
+    "symbol": "IWDP.MI",
+    "first_ucits": "2008-01-02",
+    "proxy": "VNQ",
+    "first_date": "2004-09-29",
+    "spliced_days": 820,
+    "suspicious_jumps": 0
+  },
+  {
+    "symbol": "IBGL.MI",
+    "first_ucits": "2008-01-02",
+    "proxy": "TLT",
+    "first_date": "2004-01-02",
+    "spliced_days": 1006,
+    "suspicious_jumps": 0
+  },
+  {
+    "symbol": "SGLD.MI",
+    "first_ucits": "2014-11-28",
+    "proxy": "GLD",
+    "first_date": "2004-11-18",
+    "spliced_days": 2524,
+    "suspicious_jumps": 0
+  },
+  {
+    "symbol": "XEON.MI",
+    "first_ucits": "2008-01-02",
+    "proxy": null,
+    "first_date": "2008-01-02",
+    "spliced_days": 0,
+    "suspicious_jumps": 0
+  }
+]
