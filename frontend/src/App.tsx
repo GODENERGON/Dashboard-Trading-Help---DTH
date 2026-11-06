@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { api, inDesktop, prefs, waitForEngine, type DataStatus } from "./api";
 import { Brand } from "./components/Brand";
+import { FeedbackDialog } from "./components/FeedbackDialog";
+import { Onboarding } from "./components/Onboarding";
 import { RegimeBand, type Heat } from "./components/RegimeBand";
 import regimeToday from "./data/regime.json";
 import riskToday from "./data/risk.json";
@@ -17,14 +20,17 @@ type View = {
   weekly: { d: string; s: string }[]; risk: Risk; highlights: Highlight[];
 };
 
-const VIEWS: View[] = [
-  { key: "oggi", label: "Oggi", ...regimeToday, risk: riskToday, highlights: [] },
-  {
-    ...(scenario as unknown as Omit<View, "key" | "label">),
-    key: "esempio",
-    label: "Esempio: crollo di marzo 2020",
-  },
-];
+type Overview = Omit<View, "key" | "label"> & { data_status: DataStatus };
+type Products = typeof products;
+type Models = typeof models;
+
+// Bundled data: shown while the engine starts and if it cannot be reached.
+const BUNDLED_TODAY: Omit<View, "key" | "label"> = { ...regimeToday, risk: riskToday, highlights: [] };
+const EXAMPLE: View = {
+  ...(scenario as unknown as Omit<View, "key" | "label">),
+  key: "esempio",
+  label: "Esempio: crollo di marzo 2020",
+};
 
 const TABS = [
   "Panoramica", "Prodotti", "Temi", "Startup", "IPO", "Materie prime", "Confronti",
@@ -126,7 +132,7 @@ function RiskPanel({ v }: { v: View }) {
   );
 }
 
-function ModelsPanel() {
+function ModelsPanel({ models }: { models: Models }) {
   return (
     <section className="panel span-5" aria-labelledby="models-h">
       <h2 id="models-h">Portafogli modello</h2>
@@ -148,7 +154,7 @@ function ModelsPanel() {
 
 type Ranked = { rank: number; total: number; warnings: string[]; product: { ticker: string; name: string; ter_pct: number; income: string } };
 
-function ProductsPanel() {
+function ProductsPanel({ products }: { products: Products }) {
   const cats = products.categories as Record<string, { label: string; featured: Ranked[]; others: Ranked[] }>;
   return (
     <section className="panel span-8" aria-labelledby="prod-h">
@@ -204,7 +210,22 @@ function HighlightItem({ h }: { h: Highlight }) {
   );
 }
 
-function AlertsPanel({ v }: { v: View }) {
+function DataStatusLine({ st, onRefresh }: { st: DataStatus | null; onRefresh?: () => void }) {
+  if (!st) return <p className="empty">Dati inclusi nell'app. Il motore di calcolo non è collegato.</p>;
+  const when = st.fetched_at ? new Date(st.fetched_at).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" }) : null;
+  return (
+    <p className="empty">
+      Prezzi al {itDate(st.as_of)}, fonte {st.source}{when ? `, scaricati il ${when}` : ""}.{" "}
+      {onRefresh && (
+        <button className="link" disabled={st.refreshing} onClick={onRefresh}>
+          {st.refreshing ? "Aggiornamento in corso…" : "Aggiorna ora"}
+        </button>
+      )}
+    </p>
+  );
+}
+
+function AlertsPanel({ v, st, onRefresh }: { v: View; st: DataStatus | null; onRefresh?: () => void }) {
   const hs = [...v.highlights].sort((a, b) => (a.level === b.level ? 0 : a.level === "critical" ? -1 : 1));
   return (
     <section className={`panel span-4${hs.length ? "" : " quiet"}`} aria-labelledby="alerts-h">
@@ -215,16 +236,132 @@ function AlertsPanel({ v }: { v: View }) {
         <ul className="hl-list">{hs.map((h) => <HighlightItem key={h.rule_id} h={h} />)}</ul>
       )}
       <h2 style={{ marginTop: "1.4rem" }}>Fonti</h2>
-      <p className="empty">Prezzi, regime e classifica aggiornati al {itDate(v.as_of)}.</p>
+      <DataStatusLine st={st} onRefresh={onRefresh} />
     </section>
   );
 }
 
+const SOON: Record<string, string> = {
+  Temi: "Immobiliare, ETF, indici, crypto e materie prime raccolti per tema, con i prodotti di ogni tema.",
+  Startup: "Le startup seguite, divise per settore (nucleare, data center per l'AI, farmaceutica, robotica, AI, materiali innovativi, food) e per area geografica.",
+  IPO: "Le prossime quotazioni in borsa, con data, mercato e una scheda in parole semplici.",
+  "Materie prime": "Oro, argento, petrolio e le altre materie prime, con i prodotti per investirci.",
+  Confronti: "Grafici che mettono a confronto due o più strumenti sullo stesso periodo.",
+  Portafoglio: "Le tue posizioni, lette in sola lettura dal broker o inserite a mano. Dabitur non può mai comprare o vendere.",
+  Fiscale: "Il registro di plusvalenze e minusvalenze, con le scadenze del regime dichiarativo.",
+  Strategie: "Gli studi fatti finora, con i risultati onesti: anche quelli che non hanno funzionato.",
+  Modelli: "Previsioni dei modelli per serie storiche (come TimesFM), mostrate come ventagli di possibilità e mai come ordini.",
+  Fonti: "L'elenco delle fonti autorevoli usate, con data dell'ultimo aggiornamento di ciascuna.",
+  Impostazioni: "Connettori ai broker, assistente AI facoltativo con il tuo account, aggiornamenti.",
+};
+
+function ComingSoon({ tab }: { tab: string }) {
+  return (
+    <section className="panel placeholder" aria-labelledby="soon-h">
+      <h2 id="soon-h">{tab}</h2>
+      <p>{SOON[tab]}</p>
+      <p>Questa sezione arriva nelle prossime versioni. Se hai idee su cosa vorresti trovarci, usa «Invia feedback».</p>
+    </section>
+  );
+}
+
+function ProductsTab({ products }: { products: Products }) {
+  const cats = products.categories as Record<string, { label: string; featured: Ranked[]; others: Ranked[] }>;
+  return (
+    <section className="panel" aria-labelledby="ptab-h">
+      <h2 id="ptab-h">Prodotti</h2>
+      <p className="sub">Per ogni categoria: prima i migliori per caratteristiche (costo, fiscalità, dimensione, storia), poi tutti gli altri. Non è una raccomandazione.</p>
+      <table>
+        <thead><tr><th>Categoria</th><th>Prodotto</th><th className="num"><Term hint="Costo annuo del fondo.">TER</Term></th><th className="num">Punteggio</th><th>Da sapere</th></tr></thead>
+        <tbody>
+          {Object.values(cats).flatMap((c) =>
+            [...c.featured, ...c.others].map((p, i) => (
+              <tr key={c.label + p.product.ticker}>
+                <td className="muted">{i === 0 ? c.label : ""}</td>
+                <td><span className="ticker">{p.product.ticker}</span> <span className="muted">{p.product.name}</span>{i < c.featured.length && <span className="chip" data-on="true" style={{ marginLeft: 8 }}>In evidenza</span>}</td>
+                <td className="num">{p.product.ter_pct.toFixed(2).replace(".", ",")}%</td>
+                <td className="num"><span className="score">{Math.round(p.total)}</span></td>
+                <td className="warn">{p.warnings[0] ?? (p.product.income === "accumulating" ? "Ad accumulazione" : "A distribuzione")}</td>
+              </tr>
+            )),
+          )}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
+type Engine = "starting" | "live" | "offline";
+
+function useEngine() {
+  const [engine, setEngine] = useState<Engine>("starting");
+  const [today, setToday] = useState<Overview | null>(null);
+  const [prod, setProd] = useState<Products>(products);
+  const [mod, setMod] = useState<Models>(models);
+
+  const load = useCallback(async () => {
+    const [o, p, m] = await Promise.all([
+      api<Overview>("/overview"), api<Products>("/products"), api<Models>("/portfolios/models"),
+    ]);
+    setToday(o); setProd(p); setMod(m);
+    return o.data_status;
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const ok = await waitForEngine(inDesktop ? 60_000 : 2_500);
+      if (!alive) return;
+      if (!ok) { setEngine("offline"); return; }
+      try { await load(); setEngine("live"); } catch { setEngine("offline"); }
+    })();
+    return () => { alive = false; };
+  }, [load]);
+
+  // While prices are being downloaded, poll and reload when the refresh is over.
+  const refreshing = today?.data_status.refreshing ?? false;
+  useEffect(() => {
+    if (engine !== "live") return;
+    const id = setInterval(async () => {
+      try {
+        const st = await api<DataStatus>("/status");
+        const prev = today?.data_status;
+        if (prev && (st.fetched_at !== prev.fetched_at || st.refreshing !== prev.refreshing || st.failures !== prev.failures)) {
+          await load();
+        }
+      } catch { /* engine busy: try again at the next tick */ }
+    }, refreshing ? 3_000 : 60_000);
+    return () => clearInterval(id);
+  }, [engine, refreshing, today, load]);
+
+  const refresh = useCallback(async () => {
+    await api("/refresh", { method: "POST" });
+    setToday((o) => (o ? { ...o, data_status: { ...o.data_status, refreshing: true } } : o));
+  }, []);
+
+  return { engine, today, prod, mod, refresh };
+}
+
 export function App() {
+  const { engine, today, prod, mod, refresh } = useEngine();
   const [tab, setTab] = useState("Panoramica");
   const [viewKey, setViewKey] = useState("oggi");
-  const v = VIEWS.find((x) => x.key === viewKey)!;
+  const [onboarding, setOnboarding] = useState(() => prefs.get("onboarded") !== "1");
+  const [feedback, setFeedback] = useState(false);
+
+  if (engine === "starting") {
+    return (
+      <div className="starting" aria-live="polite">
+        <Brand heat="none" />
+        <p>Avvio del motore di calcolo…</p>
+      </div>
+    );
+  }
+
+  const views: View[] = [{ key: "oggi", label: "Oggi", ...(today ?? BUNDLED_TODAY) }, EXAMPLE];
+  const v = views.find((x) => x.key === viewKey)!;
   const heat = heatOf(v.highlights);
+  const st = engine === "live" ? today?.data_status ?? null : null;
   return (
     <div className="shell" data-heat={heat}>
       <aside className="sidebar">
@@ -234,27 +371,43 @@ export function App() {
             <button key={t} aria-current={t === tab ? "page" : undefined} onClick={() => setTab(t)}>{t}</button>
           ))}
         </nav>
-        <button className="feedback">Invia feedback</button>
+        <button className="feedback" onClick={() => setFeedback(true)}>Invia feedback</button>
       </aside>
       <main className="main">
-        <div className="scenario" role="radiogroup" aria-label="Situazione mostrata">
-          {VIEWS.map((x) => (
-            <button key={x.key} role="radio" aria-checked={x.key === viewKey} onClick={() => setViewKey(x.key)}>{x.label}</button>
-          ))}
-        </div>
-        <RegimeBand weeks={v.weekly} heat={heat} />
-        <Headline v={v} />
-        <div className="grid">
-          <RiskPanel v={v} />
-          <ModelsPanel />
-          <ProductsPanel />
-          <AlertsPanel v={v} />
-        </div>
+        {engine === "offline" && (
+          <p className="notice" role="status">
+            Anteprima con i dati inclusi nell'app: il motore di calcolo non risponde.
+            {inDesktop ? " Prova a chiudere e riaprire Dabitur." : ""}
+          </p>
+        )}
+        {tab === "Panoramica" ? (
+          <>
+            <div className="scenario" role="radiogroup" aria-label="Situazione mostrata">
+              {views.map((x) => (
+                <button key={x.key} role="radio" aria-checked={x.key === viewKey} onClick={() => setViewKey(x.key)}>{x.label}</button>
+              ))}
+            </div>
+            <RegimeBand weeks={v.weekly} heat={heat} />
+            <Headline v={v} />
+            <div className="grid">
+              <RiskPanel v={v} />
+              <ModelsPanel models={mod} />
+              <ProductsPanel products={prod} />
+              <AlertsPanel v={v} st={st} onRefresh={engine === "live" ? refresh : undefined} />
+            </div>
+          </>
+        ) : tab === "Prodotti" ? (
+          <ProductsTab products={prod} />
+        ) : (
+          <ComingSoon tab={tab} />
+        )}
         <p className="disclaimer">
           Dabitur è uno strumento di informazione: non è consulenza finanziaria. Effetto metallo liquido
           realizzato con Paper Shaders, copyright Lost Coast Labs, Inc. (paper.design).
         </p>
       </main>
+      {onboarding && <Onboarding onDone={() => { prefs.set("onboarded", "1"); setOnboarding(false); }} />}
+      {feedback && <FeedbackDialog view={tab} live={engine === "live"} onClose={() => setFeedback(false)} />}
     </div>
   );
 }
