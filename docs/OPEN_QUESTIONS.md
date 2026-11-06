@@ -17,6 +17,7 @@ Ogni decisione presa qui diventa un ADR in [`adr/`](adr/).
 | 3 | Broker e regime | Conto da aprire, **regime dichiarativo**. Area Conti con inserimento manuale, import CSV e connettori: IBKR, DEGIRO, Scalable Capital ([ADR 0008](adr/0008-accounts-brokers-and-tax-ledger.md)) |
 | — | Exchange crypto | Coinbase, Binance, Bitfinex con avviso MiCA dove manca l'autorizzazione; Kraken e Bitpanda come alternative autorizzate ([ADR 0008](adr/0008-accounts-brokers-and-tax-ledger.md)) |
 | 2 | Fiscalità | Nessuna minusvalenza pregressa. Tab Fiscale con registro plus/minus; regole datate in `config/tax.it.example.yaml`; backtest anche al netto delle imposte |
+| — | Script `backtest_trend_refined.py` | Abbandonato: strategia riscritta da zero (`MultiAssetTrend`) |
 | 1 | Universo | Proposto da zero: 8 strumenti UCITS/ETC su Borsa Italiana (`config/universe.example.yaml`), da verificare |
 
 ## Ancora aperte
@@ -31,8 +32,8 @@ Ogni decisione presa qui diventa un ADR in [`adr/`](adr/).
 7. **Lingua UI:** italiano, con i termini tecnici standard in inglese (proposta).
 10. **Design:** confermare la direzione "Sala controllo" di [`DESIGN.md`](DESIGN.md), tema chiaro
     come principale.
-11. **Script esistente:** `backtest_trend_refined.py` mai eseguito su dati reali; il proprietario
-    lo cerca (forse sul NUC). Se non si trova, si riscrive da zero in M2.
+11. **Prossima strategia:** dopo lo [studio del 2026-11-06](research/2026-11-06-ucits-trend.md),
+    provare core-satellite (nucleo 60/40 comprato e tenuto + quota trend) o un trend più lento?
 12. **Capitale e limiti:** confermare i default di [`RISK_POLICY.md`](RISK_POLICY.md) in base al
     capitale iniziale.
 16. **Canale di feedback:** a quale indirizzo email arriva il feedback del tester?

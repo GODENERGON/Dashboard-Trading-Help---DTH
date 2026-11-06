@@ -26,9 +26,10 @@ Poche cose, ma installabili e funzionanti dall'inizio alla fine.
   almeno un feedback; nessun crash bloccante.
 
 ## M2 — Strategie e rischio
-- Porting di `backtest_trend_refined.py` nel contratto `Signal` (se recuperato) oppure
-  strategia trend scritta da zero sull'universo proposto; backtest al lordo e **al netto delle
-  imposte**.
+- ✅ Strategia trend riscritta da zero (`MultiAssetTrend`), simulatore con tasse italiane,
+  studio su dati reali via workflow `research`
+  ([esito](research/2026-11-06-ucits-trend.md): non validata al netto delle tasse).
+- Prossimo: variante core-satellite o trend più lento, con parametri fissati prima del test.
 - Tab **Strategie** con schede di validazione reali.
 - Tab **Portafoglio**: conti con inserimento manuale e import CSV (DEGIRO, Scalable, generico),
   limiti di rischio (crypto ≤ 10%, startup ≤ 15%), quota non liquidabile, stress test

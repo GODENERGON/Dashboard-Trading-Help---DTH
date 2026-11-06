@@ -119,14 +119,17 @@ make test           # test + harness anti-lookahead
 make lint           # ruff
 make api            # avvia l'API su http://localhost:8000 (docs su /docs)
 make backtest       # esegue un walk-forward di esempio su dati sintetici
+# studio su dati reali (serve internet): python -m dth.cli ucits-trend
+# oppure da GitHub: Actions → research → Run workflow
 ```
 
 `docker-compose.yml` serve solo per lo sviluppo (il NUC è fuori perimetro, ADR 0007).
 
 ## Stato
 
-**Fase 0 — Harness.** Documentazione, contratti, test harness e scaffold sono pronti.
-L'applicativo (UI e pannelli) non è ancora costruito. Prossimo passo: la prima build
+**Fase 0 — Harness** completata. Prima strategia testata su dati reali
+([studio del 2026-11-06](docs/research/2026-11-06-ucits-trend.md)): non validata al netto delle
+tasse. L'applicativo (UI e pannelli) non è ancora costruito. Prossimo passo: la prima build
 installabile per un tester (milestone M1).
 
 ## Disclaimer

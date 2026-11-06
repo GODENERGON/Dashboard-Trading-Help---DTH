@@ -21,6 +21,26 @@ Nessun segnale arriva in UI senza un `ValidationReport` che soddisfi i criteri q
    strategia con molto turnover può essere buona al lordo e mediocre al netto. Si riportano
    entrambe le versioni; lo stato `validated` si decide sul netto.
 
+## Due motori di backtest
+
+| | Motore veloce (`backtest/engine.py`) | Simulatore di portafoglio (`backtest/portfolio.py`) |
+|---|---|---|
+| Uso | Walk-forward e griglie di ricerca | Report di validazione, confronto con i benchmark |
+| Esecuzione | Alla chiusura della decisione | Alla chiusura **successiva** (più prudente) |
+| Pesi | Ribilanciati ogni giorno tra le date di decisione | Derivano con i prezzi tra un ribilanciamento e l'altro |
+| Tasse | No | Sì (regole di `config/tax.it.example.yaml`) |
+| Extra | — | Banda di non-ribilanciamento, valore di liquidazione netto |
+
+Semplificazioni fiscali del simulatore: tasse saldate l'ultimo giorno di borsa dell'anno (nella
+realtà a giugno), costo medio ponderato, riduzione al 48,08% delle minusvalenze su titoli di Stato
+ignorata, IVAFE 0,2% su tutto il detenuto a fine anno.
+
+## Studi eseguiti
+
+| Data | Strategia | Esito | Documento |
+|---|---|---|---|
+| 2026-11-06 | Trend multi-asset UCITS (`MultiAssetTrend`) | `research`: protegge nei crolli ma al netto delle tasse rende meno di un 60/40 | [studio](research/2026-11-06-ucits-trend.md) |
+
 ## Criteri minimi per lo stato `validated`
 
 | Metrica (fuori campione) | Soglia |
