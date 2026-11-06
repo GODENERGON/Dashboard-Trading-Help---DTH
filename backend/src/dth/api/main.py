@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from typing import Any
 
@@ -9,6 +11,8 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException
 
 from dth import __version__
+from dth.app.data_service import DataService
+from dth.app.overview import build_overview
 from dth.backtest import BacktestConfig, walk_forward
 from dth.core.config import REPO_ROOT, get_settings, load_universe
 from dth.highlights import Context
@@ -22,7 +26,44 @@ from dth.testing import synthetic_prices
 PRICES_DATASET = "prices_eur"
 
 APP_NAME = "Dabitur"
-app = FastAPI(title=APP_NAME, version=__version__)
+
+
+@lru_cache
+def data_service() -> DataService:
+    return DataService()
+
+
+@asynccontextmanager
+async def _lifespan(_: FastAPI) -> AsyncIterator[None]:
+    svc = data_service()
+    if get_settings().auto_refresh and svc.needs_refresh():
+        svc.refresh_in_background()
+    yield
+
+
+app = FastAPI(title=APP_NAME, version=__version__, lifespan=_lifespan)
+
+
+@app.get("/status")
+def status() -> dict[str, Any]:
+    """Where the prices come from and how fresh they are."""
+    return data_service().status()
+
+
+@app.post("/refresh")
+def refresh() -> dict[str, Any]:
+    """Start a background price refresh (idempotent while one is running)."""
+    svc = data_service()
+    if not svc.refreshing:
+        svc.refresh_in_background()
+    return {"started": True}
+
+
+@app.get("/overview")
+def overview() -> dict[str, Any]:
+    """Panoramica: regime band, example risk, active highlights, data status."""
+    svc = data_service()
+    return build_overview(svc.panel(), svc.status())
 
 
 @app.get("/health")

@@ -16,6 +16,7 @@ class Context:
 
     prices: pd.DataFrame  # wide close panel (EUR), columns = symbols
     as_of: pd.Timestamp
+    extras: dict[str, Any] = field(default_factory=dict)  # e.g. data status, example equity
 
 
 @dataclass(frozen=True)

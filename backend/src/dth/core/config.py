@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     data_dir: Path = REPO_ROOT / "data"
     config_dir: Path = REPO_ROOT / "config"
     universe_file: str = "universe.example.yaml"
+    auto_refresh: bool = True  # download fresh prices at startup (off in tests)
 
     fred_api_key: str | None = None
     telegram_bot_token: str | None = None
