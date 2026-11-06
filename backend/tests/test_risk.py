@@ -27,6 +27,19 @@ def test_limits_cannot_be_loosened_without_adr() -> None:
         DEFAULT_LIMITS.tightened(dd_stop=-0.4)
 
 
+def test_allocation_limits_adr_0006() -> None:
+    from dth.risk.limits import allocation_breaches
+
+    assert DEFAULT_LIMITS.max_crypto == 0.10
+    assert DEFAULT_LIMITS.max_startups == 0.15
+    ok = {"etf": 75.0, "crypto": 10.0, "startups": 15.0}
+    assert allocation_breaches(ok) == {}
+    bad = {"etf": 70.0, "crypto": 12.0, "startups": 18.0}
+    assert set(allocation_breaches(bad)) == {"crypto", "startups"}
+    with pytest.raises(ValueError):
+        DEFAULT_LIMITS.tightened(max_startups=0.25)
+
+
 def test_drawdown_state() -> None:
     assert drawdown_state(pd.Series([1.0, 1.1, 1.05])) is DrawdownState.NORMAL
     assert drawdown_state(pd.Series([1.0, 1.0, 0.88])) is DrawdownState.WARNING

@@ -16,6 +16,8 @@ class RiskLimits:
     dd_warning: float = -0.10
     dd_stop: float = -0.20
     max_trade_risk: float = 0.01
+    max_crypto: float = 0.10  # ADR 0006
+    max_startups: float = 0.15  # ADR 0006 (startups + crowdfunding, illiquid)
 
     def tightened(self, **overrides: float) -> RiskLimits:
         """Return a copy with stricter limits; loosening raises ValueError."""
@@ -44,6 +46,22 @@ def apply_limits(weights: pd.DataFrame, limits: RiskLimits = DEFAULT_LIMITS) -> 
     gross = clipped.abs().sum(axis=1)
     scale = (limits.max_gross / gross).where(gross > limits.max_gross, 1.0)
     return clipped.mul(scale, axis=0)
+
+
+def allocation_breaches(
+    values_by_class: dict[str, float], limits: RiskLimits = DEFAULT_LIMITS
+) -> dict[str, float]:
+    """Asset classes whose share of total monitored wealth exceeds its cap (ADR 0006).
+
+    ``values_by_class`` maps asset class (e.g. "crypto", "startups", "etf") to market value.
+    Returns {class: share} for each breach.
+    """
+    total = sum(values_by_class.values())
+    if total <= 0:
+        return {}
+    caps = {"crypto": limits.max_crypto, "startups": limits.max_startups}
+    shares = {k: v / total for k, v in values_by_class.items()}
+    return {k: s for k, s in shares.items() if k in caps and s > caps[k] + 1e-12}
 
 
 def drawdown_state(equity: pd.Series, limits: RiskLimits = DEFAULT_LIMITS) -> DrawdownState:

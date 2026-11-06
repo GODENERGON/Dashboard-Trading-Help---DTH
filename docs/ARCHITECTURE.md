@@ -20,9 +20,9 @@
 └──────────────────────────────────────────────────────────────────────┼──────────────────────────┘
                                                                        │
           Fonti dati e notizie (registro aggiornabile) · Broker/exchange in sola lettura · LLM utente
-                                                                       │
-                                     (opzionale) NUC con lo stesso backend in Docker per i job notturni
 ```
+
+Tutto gira sul PC dell'utente: il NUC è fuori perimetro ([ADR 0007](adr/0007-first-tester-zero-config-no-nuc.md)).
 
 Dati utente in `%LOCALAPPDATA%\DTH\`: `lake/` (Parquet), `dth.duckdb`, `config/`, `logs/`, `models/`.
 
@@ -125,7 +125,7 @@ class HighlightRule(Protocol):
 | Backend | Python ≥ 3.11, FastAPI, pandas, DuckDB, Parquet | Ecosistema quant e ML |
 | Impacchettamento backend | PyInstaller → eseguibile sidecar | Nessun Python richiesto all'utente |
 | Segreti | Credential Manager di Windows via `keyring` | Fuori da file e log |
-| Scheduling | APScheduler nel sidecar (job quando l'app è aperta) + NUC opzionale per i notturni | |
+| Scheduling | APScheduler nel sidecar: aggiornamenti all'avvio e periodici mentre l'app è aperta | |
 
 ## Build e distribuzione
 
@@ -133,10 +133,16 @@ class HighlightRule(Protocol):
 - CI Windows (M2): build del sidecar con PyInstaller, build Tauri, artefatto `.msi`.
 - Aggiornamenti: updater di Tauri con manifest firmato su GitHub Releases.
 
-## Deploy opzionale sul NUC
+- Distribuzione: installer `.msi` su GitHub Releases, senza certificato di firma in questa fase
+  (istruzioni per superare SmartScreen nel README).
 
-```
-docker compose up -d
-```
-Il backend gira identico; l'app desktop può collegarsi al NUC (impostazione *Backend remoto*)
-tramite LAN o Tailscale. **Nessuna esposizione pubblica** dell'API.
+## Feedback e diagnostica ([ADR 0007](adr/0007-first-tester-zero-config-no-nuc.md))
+
+- Log a rotazione in `%LOCALAPPDATA%\DTH\logs\` (7 giorni), senza chiavi né importi.
+- "Invia feedback" crea un pacchetto diagnostico (versione, sistema operativo, log, stato delle
+  fonti) e apre un'email precompilata. Nessuna telemetria automatica.
+
+## Sviluppo
+
+`docker compose up -d` avvia il backend in un container per lo sviluppo e i test: non è un
+canale di distribuzione.

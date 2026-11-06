@@ -13,15 +13,17 @@ Modificarli richiede un ADR in [`adr/`](adr/).
 | Drawdown di allerta | −10% dal massimo |
 | Drawdown di stop (si dimezza l'esposizione e si va in revisione manuale) | −20% dal massimo |
 | Rischio massimo per trade discrezionale | 1% del capitale |
+| Crypto, peso complessivo massimo ([ADR 0006](adr/0006-crypto-and-startup-allocation-limits.md)) | 10% del patrimonio monitorato |
+| Startup e crowdfunding, peso complessivo massimo ([ADR 0006](adr/0006-crypto-and-startup-allocation-limits.md)) | 15% del patrimonio monitorato |
 
 ## Strumenti
 
 - Strategie sistematiche: solo strumenti a pronti, liquidi, quotati su mercati regolamentati
   (ETF UCITS, azioni).
-- Crypto: solo a pronti, con peso massimo complessivo del 10% del patrimonio monitorato; nessun
-  derivato, nessun prestito o staking con controparte non regolamentata.
-- Startup e crowdfunding: contenuto informativo; se si investe, peso massimo complessivo del 5%
-  (strumenti illiquidi, perdita totale possibile).
+- Crypto: solo a pronti; nessun derivato, nessun prestito o staking con controparte non
+  regolamentata.
+- Startup e crowdfunding: contenuto informativo; se si investe, vale il limite di peso qui sopra
+  (strumenti illiquidi, orizzonte lungo, perdita totale possibile).
 - Esclusi forex, CFD, opzioni scritte senza copertura e prodotti a leva giornaliera.
 
 ## Connettori
@@ -40,7 +42,8 @@ Modificarli richiede un ADR in [`adr/`](adr/).
 
 ## Sicurezza operativa
 
-- Le credenziali del broker non passano mai dal repository: solo `.env` locale, escluso da git.
-- L'API non è esposta su internet.
+- Le credenziali non passano mai dal repository: nell'app stanno nel portachiavi di Windows,
+  in sviluppo nel file `.env` locale, escluso da git.
+- L'API del backend ascolta solo su `127.0.0.1` e richiede il token di sessione.
 - Nessun agente AI può inviare ordini: l'esecuzione richiede conferma umana fino a decisione
   contraria documentata in un ADR.

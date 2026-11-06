@@ -8,7 +8,9 @@ su DTH. Leggilo per intero prima di modificare il codice.
 DTH è un'app desktop per Windows (Tauri + sidecar Python, ADR 0003) di supporto alle decisioni
 di investimento per un solo utente: dati, notizie, temi, startup, IPO, posizioni in sola lettura,
 modelli per serie storiche, LLM opzionale. Il backend è Python (`backend/src/dth`), il frontend è
-in `frontend/` (non ancora costruito). Il NUC è un backend remoto opzionale. La lingua della documentazione e della UI è l'italiano;
+in `frontend/` (non ancora costruito). Il NUC è fuori perimetro (ADR 0007). Il primo
+utente esterno è un tester **non tecnico**: zero configurazione, linguaggio semplice, ogni
+termine tecnico spiegato in una riga. La lingua della documentazione e della UI è l'italiano;
 codice, identificatori e commenti sono in inglese.
 
 Leggi in quest'ordine: `README.md` → `docs/ARCHITECTURE.md` → `docs/VALIDATION.md` →

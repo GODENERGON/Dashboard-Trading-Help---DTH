@@ -27,9 +27,14 @@ Ogni giorno risponde a sei domande:
 
 ## Per chi
 
-Un investitore retail sistematico residente in Italia (inizialmente un solo utente), che opera su
-ETF UCITS, azioni e in parte crypto, con orizzonte da settimane a anni, interessato anche a
-immobiliare e startup, e che vuole disciplina più che "segnali caldi".
+- **Utente principale:** un investitore retail sistematico residente in Italia, che opera su ETF
+  UCITS, azioni e in parte crypto, con orizzonte da settimane ad anni, interessato anche a
+  immobiliare e startup, e che vuole disciplina più che "segnali caldi".
+- **Primo tester:** una persona con un PC Windows e **nessuna esperienza** con strumenti del
+  genere ([ADR 0007](adr/0007-first-tester-zero-config-no-nuc.md)). Se lui riesce a installarla,
+  capirla e usarla senza aiuto, l'app è sulla strada giusta.
+
+Ogni installazione serve un solo utente e tiene i dati solo sul suo PC.
 
 ## Due tipi di contenuto, tenuti separati
 
@@ -55,3 +60,5 @@ immobiliare e startup, e che vuole disciplina più che "segnali caldi".
 - Ogni evidenziazione colorata è riconducibile a una regola esplicita, consultabile con un clic.
 - Ogni segnale mostrato ha una scheda di validazione.
 - L'app funziona anche senza un account LLM e senza fonti a pagamento.
+- Un utente non tecnico la installa da solo seguendo il README e capisce la Panoramica senza
+  spiegazioni.

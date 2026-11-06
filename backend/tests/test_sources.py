@@ -30,6 +30,23 @@ def test_llm_sources_are_off_by_default() -> None:
     assert llms and all(s.status is Status.DISABLED for s in llms)
 
 
+def test_startup_watchlist_covers_owner_sectors() -> None:
+    import yaml
+
+    data = yaml.safe_load((REPO_ROOT / "config" / "watchlist.startups.example.yaml").read_text())
+    sectors = {s["id"]: s for s in data["sectors"]}
+    assert set(sectors) == {
+        "nuclear", "ai_datacenter", "biotech_longevity", "robotics", "ai",
+        "advanced_materials", "food",
+    }  # fmt: skip
+    for s in sectors.values():
+        assert s["companies"], s["id"]
+        for c in s["companies"]:
+            assert c["region"] in {"italia", "europa", "mondo"}
+            assert c["status"] in {"seed", "candidate"}
+    assert any(c["name"] == "Newcleo" for c in sectors["nuclear"]["companies"])
+
+
 def test_registry_rejects_duplicates_and_unknown_categories(tmp_path: Path) -> None:
     base = {
         "id": "x", "name": "X", "kind": "data", "categories": ["prices"],

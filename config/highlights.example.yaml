@@ -14,6 +14,11 @@ rules:
     level: critical
     when: "drawdown di portafoglio <= dd_stop"
     locked: true
+  - id: allocation_limits
+    category: risk
+    level: critical
+    when: "crypto oltre il 10% o startup e crowdfunding oltre il 15% del patrimonio (ADR 0006)"
+    locked: true
   - id: concentration
     category: risk
     level: attention

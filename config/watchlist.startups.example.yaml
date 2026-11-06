@@ -1,0 +1,145 @@
+# Watchlist startup di partenza, per settore (tab Startup, MODULES §3).
+# region: italia | europa | mondo
+# status: seed      = indicata dal proprietario del progetto
+#         candidate = suggerita come punto di partenza: VERIFICARE stato (privata o quotata),
+#                     ultimi round e notizie prima di considerarla.
+# Le aziende già quotate vanno spostate nella watchlist titoli, non qui.
+version: 1
+sectors:
+  - id: nuclear
+    name: Nucleare (compatto, SMR, fusione)
+    companies:
+      - name: Newcleo
+        country: IT
+        region: italia
+        note: Reattori modulari raffreddati a piombo
+        status: seed
+      - name: Proxima Fusion
+        country: DE
+        region: europa
+        note: Fusione, stellarator
+        status: candidate
+      - name: Commonwealth Fusion Systems
+        country: US
+        region: mondo
+        note: Fusione, tokamak con magneti superconduttori
+        status: candidate
+      - name: Kairos Power
+        country: US
+        region: mondo
+        note: Reattori raffreddati a sali fusi
+        status: candidate
+
+  - id: ai_datacenter
+    name: Data center per l'AI
+    companies:
+      - name: Nscale
+        country: GB
+        region: europa
+        note: Infrastruttura cloud per l'AI
+        status: candidate
+      - name: Crusoe
+        country: US
+        region: mondo
+        note: Data center AI alimentati da energia dedicata
+        status: candidate
+      - name: Lambda
+        country: US
+        region: mondo
+        note: Cloud GPU
+        status: candidate
+
+  - id: biotech_longevity
+    name: Farmaceutico e biotech (oncologia, longevità, ringiovanimento)
+    companies:
+      - name: Altos Labs
+        country: US
+        region: mondo
+        note: Riprogrammazione cellulare, ringiovanimento
+        status: candidate
+      - name: Retro Biosciences
+        country: US
+        region: mondo
+        note: Estensione della durata della vita in salute
+        status: candidate
+      - name: NewLimit
+        country: US
+        region: mondo
+        note: Riprogrammazione epigenetica
+        status: candidate
+
+  - id: robotics
+    name: Robotica
+    companies:
+      - name: Generative Bionics
+        country: IT
+        region: italia
+        note: Robot umanoidi, spin-off IIT
+        status: candidate
+      - name: Neura Robotics
+        country: DE
+        region: europa
+        note: Robot cognitivi e umanoidi
+        status: candidate
+      - name: 1X
+        country: NO
+        region: europa
+        note: Robot umanoidi per la casa
+        status: candidate
+      - name: Figure AI
+        country: US
+        region: mondo
+        note: Robot umanoidi general purpose
+        status: candidate
+
+  - id: ai
+    name: Intelligenza artificiale
+    companies:
+      - name: Domyn
+        country: IT
+        region: italia
+        note: Modelli AI per aziende regolamentate (ex iGenius)
+        status: candidate
+      - name: Mistral AI
+        country: FR
+        region: europa
+        note: Modelli linguistici
+        status: candidate
+      - name: Helsing
+        country: DE
+        region: europa
+        note: AI per la difesa
+        status: candidate
+
+  - id: advanced_materials
+    name: Materiali innovativi
+    companies:
+      - name: Graphenea
+        country: ES
+        region: europa
+        note: Grafene per elettronica e sensori
+        status: candidate
+      - name: Boston Metal
+        country: US
+        region: mondo
+        note: Acciaio a basse emissioni per elettrolisi a ossido fuso
+        status: candidate
+      - name: Sila Nanotechnologies
+        country: US
+        region: mondo
+        note: Anodi al silicio per batterie
+        status: candidate
+
+  - id: food
+    name: Food e agritech
+    companies:
+      - name: Planet Farms
+        country: IT
+        region: italia
+        note: Vertical farming
+        status: candidate
+      - name: Formo
+        country: DE
+        region: europa
+        note: Formaggi da fermentazione di precisione
+        status: candidate

@@ -1,6 +1,6 @@
 # ADR 0003 — App desktop Windows con Tauri e backend Python incluso
 
-- Stato: accettato
+- Stato: accettato (la parte sul NUC è sospesa da [ADR 0007](0007-first-tester-zero-config-no-nuc.md))
 - Data: 2026-11-06
 
 ## Contesto

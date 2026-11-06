@@ -9,6 +9,56 @@ e posizioni dei portali di trading in una dashboard unica. Usa modelli per serie
 (TimesFM, Chronos, Kronos…) come strumenti di contesto, un LLM opzionale con l'account
 dell'utente, e **si colora solo quando una regola esplicita trova qualcosa da considerare**.
 
+## Installazione su Windows
+
+> La prima versione installabile arriverà con la milestone M1 (vedi [`docs/ROADMAP.md`](docs/ROADMAP.md)).
+> Questa guida vale da quel momento. Serve Windows 10 o 11 a 64 bit; non serve installare altro.
+
+### 1. Scarica l'installer
+
+1. Apri la pagina [Releases](https://github.com/GODENERGON/Dashboard-Trading-Help---DTH/releases).
+2. Nell'ultima versione, sotto **Assets**, scarica il file che finisce con **`.msi`**
+   (per esempio `DTH_0.1.0_x64_it-IT.msi`).
+
+Il browser potrebbe avvisarti che il file "non viene scaricato comunemente". È normale per
+un'app nuova e senza certificato.
+- **Edge:** passa il mouse sul download, clicca sui tre puntini **…** → **Mantieni** →
+  **Mostra altro** → **Mantieni comunque**.
+- **Chrome:** clicca **Mantieni** (o **Scarica comunque**) nell'avviso del download.
+
+### 2. Avvia l'installazione e supera l'avviso di Windows
+
+1. Fai doppio clic sul file `.msi` scaricato.
+2. Comparirà una finestra blu **"Windows ha protetto il PC"**. Succede perché l'app non ha
+   ancora un certificato di firma a pagamento, non perché sia pericolosa.
+3. Clicca **Ulteriori informazioni** (il link sotto il testo).
+4. Clicca **Esegui comunque**.
+5. Se Windows chiede **"Vuoi consentire a questa app di apportare modifiche?"**, clicca **Sì**.
+6. Segui l'installazione con **Avanti** fino a **Fine**.
+
+DTH compare nel menu Start e, se l'hai scelto, sul desktop.
+
+### Se Windows blocca l'app senza il pulsante "Esegui comunque"
+
+Su alcuni PC con Windows 11 è attivo **Smart App Control**, che blocca le app senza firma e non
+offre il pulsante per proseguire. In quel caso:
+1. Apri **Impostazioni** → **Privacy e sicurezza** → **Sicurezza di Windows** →
+   **Controllo app e browser**.
+2. Apri **Impostazioni di Smart App Control** e scegli **Disattivato**.
+3. Ripeti il passo 2.
+
+⚠️ Su alcune versioni di Windows, Smart App Control non si può riattivare senza reinstallare il
+sistema. Se preferisci non disattivarlo, scrivimi: aspettiamo la versione firmata.
+
+### Primo avvio, aggiornamenti, disinstallazione
+
+- Al primo avvio una breve guida in tre passi ti chiede quali temi ti interessano. Non servono
+  account né chiavi: l'app parte con le fonti gratuite.
+- Gli aggiornamenti arrivano da soli: quando c'è una nuova versione, l'app chiede se installarla.
+- Per lasciare un commento usa il pulsante **Invia feedback** in basso a sinistra.
+- Per disinstallare: **Impostazioni** → **App** → **App installate** → **DTH** → **Disinstalla**.
+  I dati restano nella cartella `%LOCALAPPDATA%\DTH`, che puoi cancellare a mano.
+
 ## Principi non negoziabili
 
 1. **Nessun modello è un oracolo.** LLM e modelli per serie storiche (TimesFM, Chronos…) sono
@@ -53,7 +103,7 @@ backend/            Pacchetto Python `dth` (API, ingestione, segnali, backtest, 
     forecast/       Forecaster (baseline + adattatori TSFM opzionali)
     backtest/       Harness walk-forward e metriche
     risk/           Sizing e limiti di rischio
-    alerts/         Notifiche (Telegram)
+    alerts/         Notifiche
     api/            FastAPI
   tests/            Test unitari + harness anti-lookahead
 frontend/           App desktop Tauri + React (da costruire, vedi docs/DESIGN.md)
@@ -71,16 +121,15 @@ make api            # avvia l'API su http://localhost:8000 (docs su /docs)
 make backtest       # esegue un walk-forward di esempio su dati sintetici
 ```
 
-Installer Windows: dalla milestone M2 (vedi [`docs/ROADMAP.md`](docs/ROADMAP.md)).
-Backend opzionale sul NUC: `docker compose up -d`.
+`docker-compose.yml` serve solo per lo sviluppo (il NUC è fuori perimetro, ADR 0007).
 
 ## Stato
 
 **Fase 0 — Harness.** Documentazione, contratti, test harness e scaffold sono pronti.
-L'applicativo (UI e pannelli) non è ancora costruito: prima vanno chiuse le decisioni in
-[`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md).
+L'applicativo (UI e pannelli) non è ancora costruito. Prossimo passo: la prima build
+installabile per un tester (milestone M1).
 
 ## Disclaimer
 
-Software di ricerca personale. Nulla di ciò che produce costituisce consulenza finanziaria.
+Software sperimentale. Nulla di ciò che produce costituisce consulenza finanziaria.
 Il trading comporta il rischio di perdere capitale.

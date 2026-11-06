@@ -12,6 +12,15 @@ Panoramica │ Temi │ Startup │ IPO │ Materie prime │ Confronti │ Port
 
 ---
 
+## 0. Primo avvio e feedback — P0 ([ADR 0007](adr/0007-first-tester-zero-config-no-nuc.md))
+- **Primo avvio in 3 passi:** cosa fa l'app (e cosa non fa) → scelta dei temi di interesse →
+  avviso "non è consulenza finanziaria". Poi la Panoramica è già popolata con fonti gratuite.
+- **Glossario contestuale:** ogni termine tecnico ha una spiegazione in una riga al passaggio del
+  mouse (drawdown, Sharpe, VIX, ETF UCITS, lock-up…).
+- **Stati vuoti che guidano:** se una sezione non ha dati, dice cosa fare per riempirla.
+- **Invia feedback:** pulsante sempre visibile; breve scheda (cosa stavi facendo, cosa ti
+  aspettavi, voto 1-5) + email precompilata con pacchetto diagnostico allegato.
+
 ## 1. Panoramica — P0
 La sala controllo: in alto la **banda di regime**, sotto il titolo di regime, poi le evidenze
 attive (al massimo 5, ordinate per gravità), il rischio aggregato, i prossimi eventi e lo stato
@@ -44,9 +53,12 @@ Ogni tema ha una **watchlist** e le sue regole di evidenza (es. "notizia ad alta
 elemento della watchlist", "spread BTP-Bund sopra soglia").
 
 ## 3. Startup — P1
-Watchlist informativa di aziende non quotate, per **area** (Italia, Europa, mondo) e **settore**
-(nucleare compatto, difesa, AI, biotech, energia, spazio, fintech…). Esempio di partenza:
-Newcleo (nucleare compatto, reattori raffreddati a piombo).
+Watchlist informativa di aziende non quotate, per **area** (Italia, Europa, mondo) e **settore**.
+Settori di partenza: nucleare (compatto, SMR, fusione), data center per l'AI, farmaceutico e
+biotech (oncologia, longevità, ringiovanimento), robotica, AI, materiali innovativi, food e
+agritech. Seme: Newcleo; gli altri nomi in
+[`config/watchlist.startups.example.yaml`](../config/watchlist.startups.example.yaml) sono
+candidati da verificare. L'utente aggiunge settori e aziende dall'app.
 
 Scheda azienda:
 - descrizione, settore, paese, anno di fondazione;
@@ -126,8 +138,7 @@ Le viste si salvano come preferite.
 
 ## 11. Impostazioni — P0
 - Account LLM (opzionale): Anthropic, OpenAI o Ollama locale; chiave nel portachiavi di Windows.
-- Regole di evidenza e alert (Telegram, notifiche di Windows).
-- Backend locale o remoto (NUC).
+- Regole di evidenza e notifiche di Windows (Telegram facoltativo per l'utente principale).
 - Limiti di rischio: solo più restrittivi dei default di policy.
 
 ## 12. Assistente LLM — P2 (trasversale)
