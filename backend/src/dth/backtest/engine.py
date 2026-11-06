@@ -38,8 +38,8 @@ class BacktestResult:
 def _rebalance_mask(index: pd.DatetimeIndex, rule: str) -> pd.Series:
     if rule == "D":
         return pd.Series(True, index=index)
-    # Last available trading day of each period.
-    periods = index.to_period(rule.replace("ME", "M"))
+    # Last available trading day of each period ("ME" month-end, "YE" year-end, "W-FRI"...).
+    periods = index.to_period({"ME": "M", "YE": "Y", "QE": "Q"}.get(rule, rule))
     last = pd.Series(index, index=index).groupby(periods).transform("max")
     return pd.Series(index == last.to_numpy(), index=index)
 
