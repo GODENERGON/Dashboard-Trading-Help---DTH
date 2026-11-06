@@ -14,7 +14,7 @@ soddisfatti. Priorità attuale: **avere presto una build installabile per il pri
 Poche cose, ma installabili e funzionanti dall'inizio alla fine.
 
 **Stato al 06/11/2026: fatto (M1a)** — shell Tauri + motore PyInstaller, installer NSIS per
-utente senza permessi di amministratore, CI `windows-release` con smoke test del motore e
+utente senza permessi di amministratore, pacchetti Linux `.deb` e AppImage, CI `release` con smoke test del motore e
 pre-release su GitHub, seme di prezzi incluso + aggiornamento automatico da Yahoo, motore delle
 regole (drawdown dell'esempio, dati vecchi/fonte rotta; regime disattivato), guida al primo
 avvio, feedback salvato sul PC (e-mail opzionale da segreto di build), Panoramica e Prodotti.

@@ -1,6 +1,7 @@
 ## Dabitur, versione di prova
 
-Prima versione installabile per Windows 10 e 11, pensata per raccogliere le prime impressioni.
+Prima versione installabile per Windows 10 e 11 e per Ubuntu 24.04, pensata per raccogliere le
+prime impressioni.
 
 **Come installarla**
 
@@ -11,6 +12,9 @@ Prima versione installabile per Windows 10 e 11, pensata per raccogliere le prim
 
 Le istruzioni complete, anche per il caso in cui Windows blocchi l'app con «Controllo intelligente
 delle app», sono nel [README](https://github.com/GODENERGON/Dashboard-Trading-Help---DTH#installazione-su-windows).
+
+**Su Ubuntu**: scarica il file `.deb` e installalo con `sudo apt install ./Dabitur-….deb`,
+oppure usa l'AppImage (vedi il [README](https://github.com/GODENERGON/Dashboard-Trading-Help---DTH#installazione-su-linux-ubuntu)).
 
 **Cosa contiene**
 

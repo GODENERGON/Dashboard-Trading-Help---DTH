@@ -62,6 +62,30 @@ sistema. Se preferisci non disattivarlo, scrivimi: aspettiamo la versione firmat
 - Per disinstallare: **Impostazioni** → **App** → **App installate** → **Dabitur** → **Disinstalla**.
   I dati restano nella cartella `%LOCALAPPDATA%\Dabitur`, che puoi cancellare a mano.
 
+## Installazione su Linux (Ubuntu)
+
+Per Ubuntu 24.04 o successive (64 bit, con desktop). Dalla stessa pagina
+[Releases](https://github.com/GODENERGON/Dashboard-Trading-Help---DTH/releases) scarica uno dei
+due file:
+
+- **`Dabitur-….-amd64.deb`** (consigliato), che si installa come un'app normale:
+  ```bash
+  sudo apt install ./Dabitur-0.1.0-amd64.deb
+  ```
+  Poi apri **Dabitur** dal menu delle applicazioni, oppure scrivi `dabitur` nel terminale.
+  Per disinstallarla: `sudo apt remove dabitur`.
+- **`Dabitur-….-x86_64.AppImage`**, che non si installa: si rende eseguibile e si apre.
+  ```bash
+  sudo apt install libfuse2t64        # solo la prima volta, su Ubuntu 24.04
+  chmod +x Dabitur-0.1.0-x86_64.AppImage
+  ./Dabitur-0.1.0-x86_64.AppImage
+  ```
+
+Se il repository è privato, il download chiede l'accesso a GitHub. Dal terminale si può usare
+`gh release download v0.1.0 -R GODENERGON/Dashboard-Trading-Help---DTH -p '*.deb'`.
+I dati restano in `~/.local/share/Dabitur`. L'app ha una finestra grafica, quindi va aperta dal
+desktop del computer (anche in desktop remoto), non da una sessione SSH.
+
 ## Principi non negoziabili
 
 1. **Nessun modello è un oracolo.** LLM e modelli per serie storiche (TimesFM, Chronos…) sono
@@ -141,8 +165,8 @@ make backtest       # esegue un walk-forward di esempio su dati sintetici
 delle tasse finora: [trend multi-asset](docs/research/2026-11-06-ucits-trend.md),
 [core-satellite e regime](docs/research/2026-11-06-core-satellite-results.md) (pre-registrati).
 
-**M1, prima versione installabile**: installer Windows costruito da GitHub Actions
-(`windows-release`, a ogni tag `v*`), Panoramica e Prodotti con dati reali, aggiornamento
+**M1, prima versione installabile**: installer Windows e pacchetti Linux (`.deb`, AppImage) costruiti
+da GitHub Actions (`release`, a ogni tag `v*` o aggiornamento del ramo `release`), Panoramica e Prodotti con dati reali, aggiornamento
 automatico dei prezzi, guida al primo avvio, feedback. Le altre sezioni arrivano da M2.
 
 ## Disclaimer

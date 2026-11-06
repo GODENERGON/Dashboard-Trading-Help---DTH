@@ -1,6 +1,6 @@
-name: windows-release
+name: release
 
-# Builds the Windows installer (Tauri shell + packaged Python engine).
+# Builds the Windows installer and the Linux packages (Tauri shell + packaged Python engine).
 # Publishes a pre-release when a tag v* is pushed or when the `release` branch is updated
 # (then the tag is v<version in tauri.conf.json>). Run manually to just build.
 on:
@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  windows:
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
@@ -91,21 +91,90 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: dabitur-windows
-          path: out/*.exe
+          path: out/*
           retention-days: 30
 
+
+  linux:
+    # 22.04 keeps the AppImage compatible with older glibc; the .deb targets Ubuntu 24.04+.
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: System libraries for Tauri
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install engine
+        run: pip install "./backend[desktop]"
+      - name: Package engine (PyInstaller)
+        run: pyinstaller backend/packaging/dabitur-backend.spec --noconfirm
+      - name: Smoke test packaged engine
+        run: |
+          export DTH_DATA_DIR="$RUNNER_TEMP/dabitur-data" DTH_AUTO_REFRESH=false
+          dist/dabitur-backend/dabitur-backend --port 8799 --token ci &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8799/health && break; sleep 1; done
+          curl -sf -H "X-Dabitur-Token: ci" http://127.0.0.1:8799/overview | head -c 120; echo
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8799/status)" = 401
+          kill %1
+      - name: Hand the engine to the Tauri bundle
+        run: cp -r dist/dabitur-backend/* frontend/src-tauri/engine/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: frontend/src-tauri
+      - name: npm ci
+        working-directory: frontend
+        run: npm ci
+      - name: Build .deb and AppImage
+        working-directory: frontend
+        env:
+          VITE_FEEDBACK_EMAIL: ${{ secrets.FEEDBACK_EMAIL }}
+        run: npx tauri build --bundles deb,appimage
+      - name: Collect packages
+        run: |
+          version=$(jq -r .version frontend/src-tauri/tauri.conf.json)
+          mkdir -p out
+          cp frontend/src-tauri/target/release/bundle/deb/*.deb "out/Dabitur-$version-amd64.deb"
+          cp frontend/src-tauri/target/release/bundle/appimage/*.AppImage "out/Dabitur-$version-x86_64.AppImage"
+          ls -lh out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dabitur-linux
+          path: out/*
+          retention-days: 30
+
+  publish:
+    if: github.event_name == 'push'
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
       - name: Publish pre-release
-        if: github.event_name == 'push'
-        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = if ("${{ github.ref_type }}" -eq "tag") { "${{ github.ref_name }}" } else { "v${{ steps.collect.outputs.version }}" }
-          $file = "out\${{ steps.collect.outputs.name }}"
-          gh release view $tag *> $null
-          if ($LASTEXITCODE -eq 0) {
-            gh release upload $tag $file --clobber
-          } else {
-            gh release create $tag $file --target "${{ github.sha }}" --prerelease `
+          if [ "${{ github.ref_type }}" = tag ]; then tag="${{ github.ref_name }}"
+          else tag="v$(jq -r .version frontend/src-tauri/tauri.conf.json)"; fi
+          ls -lh out
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" out/* --clobber
+            gh release edit "$tag" --notes-file docs/RELEASE_NOTES.md
+          else
+            gh release create "$tag" out/* --target "${{ github.sha }}" --prerelease \
               --title "Dabitur $tag (versione di prova)" --notes-file docs/RELEASE_NOTES.md
-          }
+          fi
