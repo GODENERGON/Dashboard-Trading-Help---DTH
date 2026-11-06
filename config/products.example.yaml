@@ -1,0 +1,112 @@
+# Catalogo prodotti per la classifica (ADR 0009). Dati raccolti il 2026-11-06 da justETF,
+# trackingdifferences.com, schede emittente e analisi pubbliche (vedi `source`).
+# Patrimonio (aum_eur_m) e TER cambiano: ricontrollare prima di decidere. Non è consulenza.
+#
+# kind: etf | etc        income: accumulating | distributing     replication: physical | synthetic
+# withholding_advantage_pct: punti/anno recuperati sulle ritenute dei dividendi (es. swap S&P 500)
+# eu_retail: acquistabile da un retail UE (UCITS con KID o ETC)   tracking_diff_pct: TD media annua
+version: 1
+verified_on: 2026-11-06
+categories:
+  equity_world: Azionario mondo
+  equity_us: Azionario USA (S&P 500)
+  equity_europe: Azionario Europa
+  equity_em: Azionario paesi emergenti
+  govt_bonds_eur: Titoli di Stato area euro
+  gold: Oro
+  real_estate: Immobiliare quotato (REIT)
+  cash_eur: Liquidità in euro
+products:
+  # ── Azionario mondo ─────────────────────────────────────────────────────────
+  - {isin: IE00B4L5Y983, ticker: SWDA, name: iShares Core MSCI World UCITS ETF (Acc), category: equity_world,
+     kind: etf, ter_pct: 0.20, aum_eur_m: 127000, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2009, tracking_diff_pct: 0.03, eu_retail: true, source: justETF; trackingdifferences.com}
+  - {isin: IE00BJ0KDQ92, ticker: XDWD, name: Xtrackers MSCI World UCITS ETF 1C, category: equity_world,
+     kind: etf, ter_pct: 0.12, aum_eur_m: 22000, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2014, eu_retail: true, source: justETF}
+  - {isin: IE00BK5BQT80, ticker: VWCE, name: Vanguard FTSE All-World UCITS ETF (Acc), category: equity_world,
+     kind: etf, ter_pct: 0.14, aum_eur_m: 55000, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2019, eu_retail: true, source: justETF,
+     note: "Include anche i paesi emergenti (indice FTSE All-World)"}
+  - {isin: IE00B3RBWM25, ticker: VWRL, name: Vanguard FTSE All-World UCITS ETF (Dist), category: equity_world,
+     kind: etf, ter_pct: 0.14, aum_eur_m: 23450, income: distributing, replication: physical, domicile: IE,
+     inception_year: 2012, eu_retail: true, source: justETF}
+
+  # ── Azionario USA ───────────────────────────────────────────────────────────
+  - {isin: IE00B5BMR087, ticker: CSSPX, name: iShares Core S&P 500 UCITS ETF (Acc), category: equity_us,
+     kind: etf, ter_pct: 0.07, aum_eur_m: 139000, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2010, eu_retail: true, source: justETF}
+  - {isin: IE00BFMXXD54, ticker: VUAA, name: Vanguard S&P 500 UCITS ETF (Acc), category: equity_us,
+     kind: etf, ter_pct: 0.07, aum_eur_m: 33000, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2019, eu_retail: true, source: justETF}
+  - {isin: IE00B3YCGJ38, ticker: SPXS, name: Invesco S&P 500 UCITS ETF (Acc), category: equity_us,
+     kind: etf, ter_pct: 0.05, aum_eur_m: 38000, income: accumulating, replication: synthetic, domicile: IE,
+     inception_year: 2010, withholding_advantage_pct: 0.15, eu_retail: true,
+     source: justETF; fiscoinvestimenti.it,
+     note: "Replica a swap: evita la ritenuta USA del 15% sui dividendi; rischio di controparte"}
+  - {isin: IE0031442068, ticker: IUSA, name: iShares Core S&P 500 UCITS ETF (Dist), category: equity_us,
+     kind: etf, ter_pct: 0.07, aum_eur_m: 20000, income: distributing, replication: physical, domicile: IE,
+     inception_year: 2002, eu_retail: true, source: justETF}
+  - {isin: US78462F1030, ticker: SPY, name: SPDR S&P 500 ETF Trust (USA), category: equity_us,
+     kind: etf, ter_pct: 0.09, aum_eur_m: 550000, income: distributing, replication: physical, domicile: US,
+     inception_year: 1993, eu_retail: false, source: emittente,
+     note: "ETF domiciliato negli USA: senza KID non è acquistabile da un retail UE"}
+
+  # ── Azionario Europa ────────────────────────────────────────────────────────
+  - {isin: LU0908500753, ticker: MEUD, name: Amundi Core Stoxx Europe 600 UCITS ETF Acc, category: equity_europe,
+     kind: etf, ter_pct: 0.07, aum_eur_m: 20000, income: accumulating, replication: physical, domicile: LU,
+     inception_year: 2013, tracking_diff_pct: -0.20, eu_retail: true, source: justETF; trackingdifferences.com}
+  - {isin: IE00B4K48X80, ticker: SMEA, name: iShares Core MSCI Europe UCITS ETF (Acc), category: equity_europe,
+     kind: etf, ter_pct: 0.12, aum_eur_m: 15900, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2009, eu_retail: true, source: justETF}
+
+  # ── Azionario emergenti ─────────────────────────────────────────────────────
+  - {isin: IE00BKM4GZ66, ticker: EIMI, name: iShares Core MSCI EM IMI UCITS ETF (Acc), category: equity_em,
+     kind: etf, ter_pct: 0.18, aum_eur_m: 37600, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2014, eu_retail: true, source: justETF; finanzen.net}
+
+  # ── Titoli di Stato area euro ───────────────────────────────────────────────
+  - {isin: IE00B1FZS913, ticker: IBGL, name: iShares Euro Government Bond 15-30yr UCITS ETF (Dist), category: govt_bonds_eur,
+     kind: etf, ter_pct: 0.15, aum_eur_m: 900, income: distributing, replication: physical, domicile: IE,
+     inception_year: 2006, tracking_diff_pct: 0.19, eu_retail: true, source: justETF; trackingdifferences.com,
+     note: "Scadenze lunghe (15-30 anni): molto sensibile ai tassi"}
+  - {isin: IE00BH04GL39, ticker: VGEA, name: Vanguard EUR Eurozone Government Bond UCITS ETF (Acc), category: govt_bonds_eur,
+     kind: etf, ter_pct: 0.07, aum_eur_m: 4146, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2019, eu_retail: true, source: justETF,
+     note: "Tutte le scadenze. ISIN da riverificare sulla scheda dell'emittente"}
+  - {isin: LU0290357507, ticker: X15E, name: Xtrackers Eurozone Government Bond 15-30 UCITS ETF 1C, category: govt_bonds_eur,
+     kind: etf, ter_pct: 0.15, aum_eur_m: 53, income: accumulating, replication: physical, domicile: LU,
+     inception_year: 2007, eu_retail: true, source: justETF}
+
+  # ── Oro ─────────────────────────────────────────────────────────────────────
+  - {isin: IE00B579F325, ticker: SGLD, name: Invesco Physical Gold ETC, category: gold,
+     kind: etc, ter_pct: 0.12, aum_eur_m: 25450, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2009, eu_retail: true, source: justETF}
+  - {isin: IE00B4ND3602, ticker: SGLN, name: iShares Physical Gold ETC, category: gold,
+     kind: etc, ter_pct: 0.12, aum_eur_m: 33686, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2011, eu_retail: true, source: justETF}
+  - {isin: FR0013416716, ticker: GOLD, name: Amundi Physical Gold ETC (C), category: gold,
+     kind: etc, ter_pct: 0.12, aum_eur_m: 11404, income: accumulating, replication: physical, domicile: FR,
+     inception_year: 2019, eu_retail: true, source: justETF}
+  - {isin: JE00B1VS3770, ticker: PHAU, name: WisdomTree Physical Gold, category: gold,
+     kind: etc, ter_pct: 0.39, aum_eur_m: 6032, income: accumulating, replication: physical, domicile: JE,
+     inception_year: 2007, eu_retail: true, source: justETF}
+
+  # ── Immobiliare quotato ─────────────────────────────────────────────────────
+  - {isin: IE00B1FZS350, ticker: IWDP, name: iShares Developed Markets Property Yield UCITS ETF (Dist), category: real_estate,
+     kind: etf, ter_pct: 0.59, aum_eur_m: 1100, income: distributing, replication: physical, domicile: IE,
+     inception_year: 2006, eu_retail: true, source: justETF; finanzen.net}
+  - {isin: LU1437018838, ticker: EPRA, name: Amundi FTSE EPRA Nareit Global UCITS ETF DR (Acc), category: real_estate,
+     kind: etf, ter_pct: 0.24, aum_eur_m: 150, income: accumulating, replication: physical, domicile: LU,
+     inception_year: 2016, eu_retail: true, source: getquin; investimi.com}
+  - {isin: NL0009690239, ticker: TRET, name: VanEck Global Real Estate UCITS ETF, category: real_estate,
+     kind: etf, ter_pct: 0.25, aum_eur_m: 250, income: distributing, replication: physical, domicile: NL,
+     inception_year: 2011, eu_retail: true, source: etfstream; investimi.com}
+  - {isin: IE00BH4GR342, ticker: SPYJ, name: SPDR Dow Jones Global Real Estate UCITS ETF (Acc), category: real_estate,
+     kind: etf, ter_pct: 0.40, aum_eur_m: 39, income: accumulating, replication: physical, domicile: IE,
+     inception_year: 2020, tracking_diff_pct: 0.24, eu_retail: true, source: trackingdifferences.com}
+
+  # ── Liquidità ───────────────────────────────────────────────────────────────
+  - {isin: LU0290358497, ticker: XEON, name: Xtrackers II EUR Overnight Rate Swap UCITS ETF 1C, category: cash_eur,
+     kind: etf, ter_pct: 0.10, aum_eur_m: 22142, income: accumulating, replication: synthetic, domicile: LU,
+     inception_year: 2007, eu_retail: true, source: justETF}

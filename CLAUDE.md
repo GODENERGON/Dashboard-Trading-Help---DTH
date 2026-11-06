@@ -66,7 +66,7 @@ Leggi in quest'ordine: `README.md` → `docs/ARCHITECTURE.md` → `docs/VALIDATI
 
 ## Frontend (quando si costruisce)
 
-- Segui `docs/DESIGN.md` (direzione "Sala controllo"): colore solo per gli stati fuori norma.
+- Segui `docs/DESIGN.md` (direzione "Sala controllo in metallo liquido"): colore solo per gli stati fuori norma; effetto metallo liquido solo su banda di regime e logo.
 - I tipi TypeScript si generano dallo schema OpenAPI dell'API, non si scrivono a mano.
 
 ## Comandi utili

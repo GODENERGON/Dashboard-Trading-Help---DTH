@@ -85,7 +85,9 @@ sistema. Se preferisci non disattivarlo, scrivimi: aspettiamo la versione firmat
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Architettura, flussi, contratti tra i layer |
 | [`docs/VALIDATION.md`](docs/VALIDATION.md) | Come si valida un segnale (harness walk-forward) |
 | [`docs/RISK_POLICY.md`](docs/RISK_POLICY.md) | Guardrail su rischio ed esecuzione |
-| [`docs/DESIGN.md`](docs/DESIGN.md) | Direzione visiva "financial-tech" |
+| [`docs/DESIGN.md`](docs/DESIGN.md) | Direzione visiva "sala controllo in metallo liquido" |
+| [`docs/PRODUCTS.md`](docs/PRODUCTS.md) | Classifica prodotti per caratteristiche e portafogli modello |
+| [`docs/TOOLS.md`](docs/TOOLS.md) | Strumenti open source valutati |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Milestone e criteri di uscita |
 | [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md) | Decisioni aperte prima della costruzione |
 | [`docs/adr/`](docs/adr/) | Architecture Decision Records |

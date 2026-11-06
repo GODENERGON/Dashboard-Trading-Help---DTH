@@ -21,7 +21,8 @@ Poche cose, ma installabili e funzionanti dall'inizio alla fine.
   prime** (oro e principali), **Confronti** (base 100, rapporto, correlazione), **Startup** (sola
   lettura della watchlist di partenza), **Fonti**.
 - Motore delle `HighlightRule` con le prime regole di regime e dati.
-- Design "Sala controllo" ([`DESIGN.md`](DESIGN.md)).
+- Design "Sala controllo in metallo liquido" ([`DESIGN.md`](DESIGN.md)), con Paper Shaders per la banda di regime.
+- Tab **Prodotti** con classifica e portafogli modello.
 - **Uscita:** il tester installa l'app da solo seguendo il README, la usa per 2 settimane e invia
   almeno un feedback; nessun crash bloccante.
 
@@ -32,6 +33,7 @@ Poche cose, ma installabili e funzionanti dall'inizio alla fine.
 - ✅ Core-satellite e indicatore di regime pre-registrati e testati
   ([esito](research/2026-11-06-core-satellite-results.md)): core-satellite non validato;
   regime solo informativo (endpoint `/regime/trend`, regola `trend_regime` disattivata).
+- ✅ Classifica prodotti per caratteristiche e portafogli modello (ADR 0009, [`PRODUCTS.md`](PRODUCTS.md)).
 - Prossimo, se si continua la ricerca: trend solo sull'oro (ETC, redditi diversi) o uscite più
   lente, sempre pre-registrati.
 - Tab **Strategie** con schede di validazione reali.

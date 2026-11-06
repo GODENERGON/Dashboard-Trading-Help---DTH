@@ -51,3 +51,13 @@ def test_trend_regime_endpoint(tmp_path, monkeypatch) -> None:
     assert body["colors_dashboard"] is False and body["highlight"] is None
     assert body["detail"]["level"] == "critical"
     assert len(body["history"]) == 260
+
+
+def test_products_and_model_portfolios() -> None:
+    body = client.get("/products").json()
+    assert body["categories"]["gold"]["featured"][0]["product"]["kind"] == "etc"
+    one = client.get("/products", params={"category": "equity_us"}).json()
+    assert list(one["categories"]) == ["equity_us"]
+    assert client.get("/products", params={"category": "nope"}).status_code == 404
+    models = client.get("/portfolios/models").json()
+    assert set(models["models"]) == {"prudente", "bilanciato", "dinamico"}

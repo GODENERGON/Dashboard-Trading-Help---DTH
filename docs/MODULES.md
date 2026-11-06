@@ -7,7 +7,7 @@ Legenda del tipo: 🅸 informazione, 🆂 segnale ([ADR 0004](adr/0004-informati
 ## Struttura delle tab
 
 ```
-Panoramica │ Temi │ Startup │ IPO │ Materie prime │ Confronti │ Portafoglio │ Fiscale │ Strategie │ Modelli │ Fonti │ Impostazioni
+Panoramica │ Prodotti │ Temi │ Startup │ IPO │ Materie prime │ Confronti │ Portafoglio │ Fiscale │ Strategie │ Modelli │ Fonti │ Impostazioni
 ```
 
 ---
@@ -36,6 +36,17 @@ delle fonti.
 | Rischio | Drawdown, esposizione, volatilità, valuta, concentrazione (tutte le piattaforme) | 🅸 |
 | Prossimi 14 giorni | Banche centrali, macro, trimestrali della watchlist, IPO, stacchi dividendo | 🅸 |
 | Salute delle fonti | Aggiornamento per fonte (verde, ambra, rosso) | 🅸 |
+
+## 1b. Prodotti e portafogli modello — P0 ([ADR 0009](adr/0009-product-scorecard-and-model-portfolios.md))
+- **Classifica per caratteristiche** in ogni categoria (azionario mondo, USA, Europa, emergenti,
+  titoli di Stato, oro, immobiliare, liquidità): prima **"In evidenza per caratteristiche"**,
+  poi **"Tutti gli altri"**, poi i prodotti **non acquistabili** da un retail italiano.
+- Punteggio 0-100 con dettaglio voce per voce: costo effettivo, fiscalità italiana, dimensione,
+  fedeltà all'indice, storicità; avvisi (fondo piccolo, replica sintetica). Endpoint `/products`.
+- **Portafogli modello** prudente / bilanciato / dinamico composti con i prodotti meglio
+  classificati, ribilanciamento annuale, TER medio ponderato; esempi educativi non personalizzati.
+  Endpoint `/portfolios/models`.
+- Classifica attuale: [`PRODUCTS.md`](PRODUCTS.md).
 
 ## 2. Temi — P0 (struttura) / P1 (contenuti completi)
 Un tema è una vista configurabile con quattro sezioni fisse: **Notizie · Dati · Prodotti ·

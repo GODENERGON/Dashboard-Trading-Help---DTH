@@ -10,8 +10,9 @@ from fastapi import FastAPI, HTTPException
 
 from dth import __version__
 from dth.backtest import BacktestConfig, walk_forward
-from dth.core.config import get_settings, load_universe
+from dth.core.config import REPO_ROOT, get_settings, load_universe
 from dth.highlights import Context
+from dth.products import build_model_portfolios, load_catalog, rank_catalog
 from dth.regime import TrendRegimeRule, regime_series
 from dth.risk import DEFAULT_LIMITS
 from dth.signals import DualMomentumTopK
@@ -93,3 +94,28 @@ def trend_regime() -> dict[str, Any]:
         "detail": detail.to_dict() if detail else None,
         "history": {str(d.date()): v for d, v in history.items()},
     }
+
+
+def _ranking() -> dict[str, Any]:
+    settings = get_settings()
+    path = settings.config_dir / "products.example.yaml"
+    if not path.exists():
+        path = REPO_ROOT / "config" / "products.example.yaml"
+    return rank_catalog(load_catalog(path))
+
+
+@app.get("/products")
+def products(category: str | None = None) -> dict[str, Any]:
+    """Products ranked by objective features: featured first, then all the others (ADR 0009)."""
+    ranking = _ranking()
+    if category is not None:
+        if category not in ranking["categories"]:
+            raise HTTPException(status_code=404, detail=f"Categoria sconosciuta: {category}")
+        ranking["categories"] = {category: ranking["categories"][category]}
+    return ranking
+
+
+@app.get("/portfolios/models")
+def model_portfolios() -> dict[str, Any]:
+    """Educational, non-personalised model portfolios built from the ranking (ADR 0009)."""
+    return build_model_portfolios(_ranking())

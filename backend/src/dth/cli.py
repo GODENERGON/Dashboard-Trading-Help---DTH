@@ -88,6 +88,15 @@ def _core_satellite(args: argparse.Namespace) -> None:
     logging.getLogger(__name__).info("report written to %s", out)
 
 
+def _products_report(args: argparse.Namespace) -> None:
+    from dth.products import load_catalog, rank_catalog
+    from dth.products.report import render_products_markdown
+
+    ranking = rank_catalog(load_catalog(REPO_ROOT / "config" / "products.example.yaml"))
+    Path(args.out).write_text(render_products_markdown(ranking), encoding="utf-8")
+    logging.getLogger(__name__).info("product ranking written to %s", args.out)
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(prog="dth")
@@ -104,6 +113,9 @@ def main() -> None:
     c.add_argument("--prices-csv", required=True, help="EUR panel saved by `ucits-trend`")
     c.add_argument("--out", default="reports/core_satellite")
     c.set_defaults(func=_core_satellite)
+    r = sub.add_parser("products-report", help="render the product ranking to Markdown")
+    r.add_argument("--out", default=str(REPO_ROOT / "docs" / "PRODUCTS.md"))
+    r.set_defaults(func=_products_report)
     args = parser.parse_args()
     args.func(args)
 

@@ -1,6 +1,9 @@
-# Design direction — "Sala controllo"
+# Design direction — "Sala controllo in metallo liquido"
 
-> Stato: **proposta**, da confermare prima della costruzione (vedi [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md)).
+> Stato: **proposta aggiornata il 2026-11-06** su richiesta del proprietario: stile *liquid metal*
+> declinato con i colori della finanza. La logica "sala controllo" resta; cambiano materiale e
+> palette (sezione [Metallo liquido](#metallo-liquido-revisione-2026-11-06)). La palette chiara
+> qui sotto diventa il tema secondario.
 
 ## Il concetto
 
@@ -108,3 +111,49 @@ con i dati usati e l'ora ([ADR 0004](adr/0004-information-vs-signals-and-highlig
 
 Contrasto WCAG AA su tutti i testi; focus da tastiera visibile (anello Petrolio 2 px);
 scorciatoie da tastiera per cambiare tab; i grafici hanno sempre una tabella dati alternativa accessibile.
+
+
+## Metallo liquido (revisione 2026-11-06)
+
+### L'idea
+Il metallo liquido unisce due mondi del progetto: l'**acciaio** (la sala controllo di un
+impianto siderurgico) e il **denaro** (oro, metalli preziosi, lingotti). La superficie dell'app è
+metallo freddo e lucido, calmo; quando una regola di evidenza scatta, il metallo **si scalda**:
+diventa ambra fusa per l'attenzione e rosso di colata per il critico. Il colore resta
+informazione (ADR 0004), ma ora ha anche un significato fisico: *metallo freddo = tutto normale,
+metallo incandescente = guarda qui*.
+
+### Palette (tema principale, scuro)
+
+| Nome | Hex | Ruolo |
+|---|---|---|
+| Inchiostro blu | `#101A2A` | Sfondo: blu notte da carta valori, non nero |
+| Titanio | `#243042` | Pannelli e superfici, con gradiente spazzolato appena percettibile |
+| Cromo | `#D3DAE2` | Testo principale, linee dei grafici, riflessi del metallo |
+| Argento brunito | `#9AA5B2` | Testo secondario, assi, griglie, serie di confronto |
+| Oro brunito | `#C9A55C` | Il tuo denaro: posizioni, strategia, portafoglio modello scelto |
+| Ambra fusa | `#E59B3A` | Attenzione (`attention`) |
+| Colata | `#F2735A` | Critico (`critical`); per superfici piene si usa la tonalità più scura `#A8321F` con testo Cromo (4,7:1) |
+
+Regole invariate: niente verde, rendimenti negativi in cromo con il segno meno, ambra e colata
+solo dalle regole di evidenza. Contrasto verificato (WCAG AA, ≥ 4,5:1) per tutti i colori di testo sia su Inchiostro blu sia su Titanio.
+
+### Dove si usa l'effetto metallo liquido (e dove no)
+- **Banda di regime**: un nastro di metallo liquido che scorre (componente `LiquidMetal` di
+  Paper Shaders, vedi [`TOOLS.md`](TOOLS.md)). In regime normale è cromo freddo; in regime
+  misto si scalda verso l'ambra; in regime difensivo il colore resta neutro finché la regola
+  `trend_regime` è disattivata (test pre-registrato fallito).
+- **Logo e schermata di avvio**: il nome dell'app in metallo liquido.
+- **Pulsante "Invia feedback" e stato vuoto della Panoramica**: piccoli riflessi metallici statici.
+- **Non** su tabelle, grafici e testi: lì il metallo è solo un gradiente spazzolato statico in
+  CSS, per non affaticare la lettura né la scheda video.
+
+### Movimento e prestazioni
+- Lo shader gira solo nella banda di regime e nell'avvio, a 30 fps massimo, e si ferma quando
+  la finestra non è in primo piano.
+- `prefers-reduced-motion`: lo shader mostra un fotogramma fisso.
+- PC poco potenti: se WebGL non è disponibile, si usa un gradiente CSS equivalente.
+
+### Tipografia
+Invariata (Archivo); i titoli grandi in Archivo Expanded prendono un riempimento metallico
+(gradiente cromo → argento) solo nel titolo di regime.

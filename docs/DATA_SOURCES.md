@@ -41,6 +41,12 @@ Ogni fonte dichiara:
 | Inserimento manuale e CSV generico | Per tutto ciò che non si collega | — |
 | LLM (opzionali) | Anthropic, OpenAI, Ollama locale | — |
 
+## Catalogo prodotti
+
+`config/products.example.yaml` (ADR 0009) raccoglie TER, patrimonio, politica dei proventi,
+replica e domicilio di ogni ETF/ETC classificato, con fonte e data di verifica (justETF,
+trackingdifferences.com, schede emittente). Strumenti per aggiornarlo: vedi [`TOOLS.md`](TOOLS.md).
+
 ## Modelli per serie storiche (plug-in)
 
 | Modello | Uso in DTH | Licenza |

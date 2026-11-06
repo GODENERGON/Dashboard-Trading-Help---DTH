@@ -30,8 +30,9 @@ Ogni decisione presa qui diventa un ADR in [`adr/`](adr/).
 5. **Budget dati:** solo fonti gratuite per M1–M2 (proposta), oppure una fonte a pagamento?
 6. **Betting:** fuori da DTH, in un repo a parte (proposta).
 7. **Lingua UI:** italiano, con i termini tecnici standard in inglese (proposta).
-10. **Design:** confermare la direzione "Sala controllo" di [`DESIGN.md`](DESIGN.md), tema chiaro
-    come principale.
+10. **Design:** confermare la revisione "metallo liquido" di [`DESIGN.md`](DESIGN.md) (tema scuro
+    blu notte come principale, chiaro come secondario).
+17. **Nome dell'app:** dal concetto "Chiedi e ti sarà dato" (proposte in discussione).
 11. **Ricerca strategie:** core-satellite e regime testati
     ([esito](research/2026-11-06-core-satellite-results.md)). Continuare con trend sull'oro o
     uscite più lente, oppure fermarsi e concentrarsi sull'app?
