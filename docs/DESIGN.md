@@ -7,7 +7,7 @@
 
 ## Il concetto
 
-DTH non si ispira alle app di trading retail (sfondo nero, verde acido, candele ovunque) né ai
+Dabitur non si ispira alle app di trading retail (sfondo nero, verde acido, candele ovunque) né ai
 template SaaS. Si ispira alle **sale controllo industriali**: le interfacce HMI di un impianto
 siderurgico progettate secondo la filosofia *High-Performance HMI* (ISA-101).
 
@@ -16,7 +16,7 @@ Il principio centrale di quelle interfacce è anche la disciplina che vogliamo n
 > **Lo stato normale è grigio e calmo. Il colore compare solo quando qualcosa è fuori norma.**
 
 Un operatore di impianto non guarda cento numeri colorati: guarda un processo neutro e nota
-subito l'unico valore ambra. In DTH un mercato "normale" appare quieto; un regime di stress, un
+subito l'unico valore ambra. In Dabitur un mercato "normale" appare quieto; un regime di stress, un
 drawdown vicino al limite, un dato vecchio *accendono* l'interfaccia. Il colore diventa
 informazione, non decorazione, e l'UI scoraggia l'iperattività.
 

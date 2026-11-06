@@ -14,7 +14,7 @@ modelli per serie storiche, backtest) è in Python e va mantenuto.
 - Interfaccia: Vite + React + TypeScript dentro Tauri.
 - Backend: il pacchetto Python `dth` impacchettato come eseguibile (PyInstaller) e avviato da
   Tauri come **sidecar** su `127.0.0.1` con porta casuale e token di sessione.
-- Dati utente in `%LOCALAPPDATA%\DTH\` (lake Parquet, DuckDB, configurazioni, log).
+- Dati utente in `%LOCALAPPDATA%\Dabitur\` (lake Parquet, DuckDB, configurazioni, log).
 - Il NUC diventa **opzionale**: può eseguire lo stesso backend in Docker per i job notturni, e
   l'app desktop può puntare a quel backend invece che al sidecar locale.
 - I modelli pesanti (TimesFM, Chronos, Kronos) sono **plug-in scaricabili** dall'app, non inclusi

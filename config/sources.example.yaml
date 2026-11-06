@@ -57,6 +57,30 @@ sources:
     status: planned
     notes: Calendari, nuove quotazioni, dati ETFplus. Verificare i termini d'uso prima dell'automazione.
 
+  - id: financedatabase
+    name: FinanceDatabase (JerBouma, MIT)
+    kind: data
+    categories: [etf, indices, crypto]
+    url: https://github.com/JerBouma/FinanceDatabase
+    access: api
+    cost: free
+    auth: none
+    reliability: B
+    status: active
+    notes: Anagrafica di 300.000+ strumenti (ISIN, borsa, categoria), senza prezzi. Usata per proporre nuovi prodotti al catalogo.
+  - id: justetf
+    name: justETF (via justetf-scraping)
+    kind: data
+    categories: [etf]
+    url: https://www.justetf.com
+    access: web
+    cost: free
+    auth: none
+    reliability: B
+    status: planned
+    notes: TER e dimensione degli ETF UCITS, solo come proposta di aggiornamento del catalogo da rivedere a mano.
+    warning: "Dati raccolti dal sito, verificare i termini d'uso di justETF prima di un uso regolare."
+
   # ── Macro, tassi, condizioni finanziarie ────────────────────────────────────
   - id: fred
     name: FRED — Federal Reserve Bank of St. Louis

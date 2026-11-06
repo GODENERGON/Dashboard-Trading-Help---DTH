@@ -22,7 +22,7 @@ MODEL_PORTFOLIOS: dict[str, dict[str, Any]] = {
     },
     "bilanciato": {
         "label": "Bilanciato",
-        "description": "Il classico 60/40 con un po' di oro: il riferimento degli studi DTH.",
+        "description": "Il classico 60/40 con un po' di oro: il riferimento degli studi.",
         "weights": {"equity_world": 0.55, "govt_bonds_eur": 0.35, "gold": 0.10},
     },
     "dinamico": {

@@ -3,7 +3,7 @@
 ## Vista d'insieme ([ADR 0003](adr/0003-windows-desktop-app-with-tauri.md))
 
 ```
-┌──────────────────────────── App DTH (Windows, installer .msi) ────────────────────────────┐
+┌──────────────────────────── App Dabitur (Windows, installer .msi) ────────────────────────────┐
 │                                                                                           │
 │  ┌──────────────── Shell Tauri ────────────────┐      ┌──────── Sidecar Python `dth` ────────┐ │
 │  │  UI React + TS (design "Sala controllo")    │ HTTP │  api/  FastAPI su 127.0.0.1 + token  │ │
@@ -24,7 +24,7 @@
 
 Tutto gira sul PC dell'utente: il NUC è fuori perimetro ([ADR 0007](adr/0007-first-tester-zero-config-no-nuc.md)).
 
-Dati utente in `%LOCALAPPDATA%\DTH\`: `lake/` (Parquet), `dth.duckdb`, `config/`, `logs/`, `models/`.
+Dati utente in `%LOCALAPPDATA%\Dabitur\`: `lake/` (Parquet), `dth.duckdb`, `config/`, `logs/`, `models/`.
 
 ## Layer e contratti
 
@@ -138,7 +138,7 @@ class HighlightRule(Protocol):
 
 ## Feedback e diagnostica ([ADR 0007](adr/0007-first-tester-zero-config-no-nuc.md))
 
-- Log a rotazione in `%LOCALAPPDATA%\DTH\logs\` (7 giorni), senza chiavi né importi.
+- Log a rotazione in `%LOCALAPPDATA%\Dabitur\logs\` (7 giorni), senza chiavi né importi.
 - "Invia feedback" crea un pacchetto diagnostico (versione, sistema operativo, log, stato delle
   fonti) e apre un'email precompilata. Nessuna telemetria automatica.
 

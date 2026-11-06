@@ -1,9 +1,10 @@
-# DTH — Dashboard Trading Help
+# Dabitur
 
-> Il punto focale di tutte le informazioni rilevanti per decidere *se, cosa e quanto* tradare.
+> Il punto focale di tutte le informazioni rilevanti per decidere *se, cosa e quanto* investire.
+> Nome in codice del repository: DTH (Dashboard Trading Help).
 > Non un oracolo: un cruscotto di contesto, rischio e strategie validate.
 
-DTH è un'**applicazione desktop per Windows** (Tauri + backend Python incluso) che riunisce dati
+Dabitur è un'**applicazione desktop per Windows** (Tauri + backend Python incluso) che riunisce dati
 di mercato, macro, notizie, temi (immobiliare, ETF, indici, crypto, materie prime), startup, IPO
 e posizioni dei portali di trading in una dashboard unica. Usa modelli per serie storiche
 (TimesFM, Chronos, Kronos…) come strumenti di contesto, un LLM opzionale con l'account
@@ -18,7 +19,7 @@ dell'utente, e **si colora solo quando una regola esplicita trova qualcosa da co
 
 1. Apri la pagina [Releases](https://github.com/GODENERGON/Dashboard-Trading-Help---DTH/releases).
 2. Nell'ultima versione, sotto **Assets**, scarica il file che finisce con **`.msi`**
-   (per esempio `DTH_0.1.0_x64_it-IT.msi`).
+   (per esempio `Dabitur_0.1.0_x64_it-IT.msi`).
 
 Il browser potrebbe avvisarti che il file "non viene scaricato comunemente". È normale per
 un'app nuova e senza certificato.
@@ -36,7 +37,7 @@ un'app nuova e senza certificato.
 5. Se Windows chiede **"Vuoi consentire a questa app di apportare modifiche?"**, clicca **Sì**.
 6. Segui l'installazione con **Avanti** fino a **Fine**.
 
-DTH compare nel menu Start e, se l'hai scelto, sul desktop.
+Dabitur compare nel menu Start e, se l'hai scelto, sul desktop.
 
 ### Se Windows blocca l'app senza il pulsante "Esegui comunque"
 
@@ -56,8 +57,8 @@ sistema. Se preferisci non disattivarlo, scrivimi: aspettiamo la versione firmat
   account né chiavi: l'app parte con le fonti gratuite.
 - Gli aggiornamenti arrivano da soli: quando c'è una nuova versione, l'app chiede se installarla.
 - Per lasciare un commento usa il pulsante **Invia feedback** in basso a sinistra.
-- Per disinstallare: **Impostazioni** → **App** → **App installate** → **DTH** → **Disinstalla**.
-  I dati restano nella cartella `%LOCALAPPDATA%\DTH`, che puoi cancellare a mano.
+- Per disinstallare: **Impostazioni** → **App** → **App installate** → **Dabitur** → **Disinstalla**.
+  I dati restano nella cartella `%LOCALAPPDATA%\Dabitur`, che puoi cancellare a mano.
 
 ## Principi non negoziabili
 

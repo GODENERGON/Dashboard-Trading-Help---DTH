@@ -73,5 +73,5 @@ Generata dal catalogo `config/products.example.yaml` (dati verificati il 2026-11
 > Esempio educativo, non personalizzato: non tiene conto della tua situazione, dei tuoi obiettivi né della tua tolleranza al rischio. Non è una raccomandazione d'investimento. Ribilanciamento: una volta l'anno.
 
 - **Prudente** — Più titoli di Stato che azioni: oscillazioni contenute, crescita lenta. 25% XDWD, 55% VGEA, 10% SGLD, 10% XEON. TER medio ponderato 0,09%.
-- **Bilanciato** — Il classico 60/40 con un po' di oro: il riferimento degli studi DTH. 55% XDWD, 35% VGEA, 10% SGLD. TER medio ponderato 0,10%.
+- **Bilanciato** — Il classico 60/40 con un po' di oro: il riferimento degli studi. 55% XDWD, 35% VGEA, 10% SGLD. TER medio ponderato 0,10%.
 - **Dinamico** — Prevalenza azionaria: più crescita attesa, cali anche del 30-50%. 70% XDWD, 10% EIMI, 10% VGEA, 10% SGLD. TER medio ponderato 0,12%.

@@ -5,7 +5,7 @@ su DTH. Leggilo per intero prima di modificare il codice.
 
 ## Contesto in 30 secondi
 
-DTH è un'app desktop per Windows (Tauri + sidecar Python, ADR 0003) di supporto alle decisioni
+Dabitur (nome in codice DTH, pacchetto Python `dth`) è un'app desktop per Windows (Tauri + sidecar Python, ADR 0003) di supporto alle decisioni
 di investimento per un solo utente: dati, notizie, temi, startup, IPO, posizioni in sola lettura,
 modelli per serie storiche, LLM opzionale. Il backend è Python (`backend/src/dth`), il frontend è
 in `frontend/` (non ancora costruito). Il NUC è fuori perimetro (ADR 0007). Il primo

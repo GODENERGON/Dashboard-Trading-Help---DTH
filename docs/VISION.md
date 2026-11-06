@@ -9,7 +9,7 @@ quadro e, peggio, guidate dall'emotività del momento.
 
 ## La risposta
 
-DTH è **un'applicazione desktop per Windows**, installabile, che riunisce in un solo posto dati,
+Dabitur è **un'applicazione desktop per Windows**, installabile, che riunisce in un solo posto dati,
 notizie, modelli di analisi delle serie storiche e posizioni. È costruita come una sala controllo:
 **resta calma quando non succede nulla e si colora solo quando c'è qualcosa che ha senso
 considerare** (vedi [ADR 0004](adr/0004-information-vs-signals-and-highlight-rules.md)).

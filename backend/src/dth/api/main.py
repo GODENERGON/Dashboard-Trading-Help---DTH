@@ -21,12 +21,13 @@ from dth.testing import synthetic_prices
 
 PRICES_DATASET = "prices_eur"
 
-app = FastAPI(title="DTH — Dashboard Trading Help", version=__version__)
+APP_NAME = "Dabitur"
+app = FastAPI(title=APP_NAME, version=__version__)
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "version": __version__}
+    return {"status": "ok", "app": APP_NAME, "version": __version__}
 
 
 @app.get("/universe")

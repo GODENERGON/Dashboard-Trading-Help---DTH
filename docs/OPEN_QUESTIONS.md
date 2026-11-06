@@ -18,6 +18,7 @@ Ogni decisione presa qui diventa un ADR in [`adr/`](adr/).
 | — | Exchange crypto | Coinbase, Binance, Bitfinex con avviso MiCA dove manca l'autorizzazione; Kraken e Bitpanda come alternative autorizzate ([ADR 0008](adr/0008-accounts-brokers-and-tax-ledger.md)) |
 | 2 | Fiscalità | Nessuna minusvalenza pregressa. Tab Fiscale con registro plus/minus; regole datate in `config/tax.it.example.yaml`; backtest anche al netto delle imposte |
 | — | Script `backtest_trend_refined.py` | Abbandonato: strategia riscritta da zero (`MultiAssetTrend`) |
+| 17 | Nome dell'app | **Dabitur** (dal latino *Petite et dabitur vobis*, "chiedete e vi sarà dato"); nome in codice del repository DTH |
 | 1 | Universo | Proposto da zero: 8 strumenti UCITS/ETC su Borsa Italiana (`config/universe.example.yaml`), da verificare |
 
 ## Ancora aperte
@@ -32,7 +33,6 @@ Ogni decisione presa qui diventa un ADR in [`adr/`](adr/).
 7. **Lingua UI:** italiano, con i termini tecnici standard in inglese (proposta).
 10. **Design:** confermare la revisione "metallo liquido" di [`DESIGN.md`](DESIGN.md) (tema scuro
     blu notte come principale, chiaro come secondario).
-17. **Nome dell'app:** dal concetto "Chiedi e ti sarà dato" (proposte in discussione).
 11. **Ricerca strategie:** core-satellite e regime testati
     ([esito](research/2026-11-06-core-satellite-results.md)). Continuare con trend sull'oro o
     uscite più lente, oppure fermarsi e concentrarsi sull'app?
