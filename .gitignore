@@ -10,7 +10,7 @@ build/
 
 # Segreti e dati locali
 .env
-data/
+/data/
 *.duckdb
 *.parquet
 
