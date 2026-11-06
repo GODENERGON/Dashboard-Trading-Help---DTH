@@ -81,8 +81,13 @@ Lamiera) e posizione, non con bordi arrotondati e ombre.
 └────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Mobile: la banda di regime resta in cima (scroll orizzontale), poi titolo di regime, rischio,
-alert; il resto va in sezioni espandibili.
+App desktop: finestra minima 1280×800, layout pensato per 1920×1080. Le tab
+(Panoramica, Temi, Startup, IPO, Materie prime, Confronti, Portafoglio, Strategie, Modelli,
+Fonti, Impostazioni) stanno in una barra laterale stretta; la banda di regime resta sempre in
+cima, in ogni tab. A finestra stretta, i pannelli si impilano e il resto va in sezioni espandibili.
+
+Ogni elemento colorato ha un'azione "Perché?" che apre la regola di evidenza che l'ha acceso,
+con i dati usati e l'ora ([ADR 0004](adr/0004-information-vs-signals-and-highlight-rules.md)).
 
 ## Movimento
 
@@ -102,4 +107,4 @@ alert; il resto va in sezioni espandibili.
 ## Qualità minima
 
 Contrasto WCAG AA su tutti i testi; focus da tastiera visibile (anello Petrolio 2 px);
-responsive fino a 360 px; i grafici hanno sempre una tabella dati alternativa accessibile.
+scorciatoie da tastiera per cambiare tab; i grafici hanno sempre una tabella dati alternativa accessibile.

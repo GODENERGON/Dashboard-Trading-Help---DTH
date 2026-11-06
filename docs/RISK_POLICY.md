@@ -16,8 +16,18 @@ Modificarli richiede un ADR in [`adr/`](adr/).
 
 ## Strumenti
 
-- Solo strumenti a pronti, liquidi, quotati su mercati regolamentati: ETF UCITS, azioni.
+- Strategie sistematiche: solo strumenti a pronti, liquidi, quotati su mercati regolamentati
+  (ETF UCITS, azioni).
+- Crypto: solo a pronti, con peso massimo complessivo del 10% del patrimonio monitorato; nessun
+  derivato, nessun prestito o staking con controparte non regolamentata.
+- Startup e crowdfunding: contenuto informativo; se si investe, peso massimo complessivo del 5%
+  (strumenti illiquidi, perdita totale possibile).
 - Esclusi forex, CFD, opzioni scritte senza copertura e prodotti a leva giornaliera.
+
+## Connettori
+
+- Sola lettura, chiavi senza permessi di trading né di prelievo, segreti nel portachiavi di
+  Windows ([ADR 0005](adr/0005-read-only-connectors-and-secrets.md)).
 
 ## Gate verso l'esecuzione
 

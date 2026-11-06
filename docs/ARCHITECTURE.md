@@ -1,38 +1,40 @@
 # Architettura
 
-## Vista d'insieme
+## Vista d'insieme ([ADR 0003](adr/0003-windows-desktop-app-with-tauri.md))
 
 ```
-            ┌──────────────┐  schedule   ┌──────────────┐
- Fonti ───▶ │  providers/  │ ──────────▶ │   store/     │  DuckDB + Parquet
- esterne    │ DataProvider │  (jobs/)    │ (data/lake)  │  (sul NUC)
-            └──────────────┘             └──────┬───────┘
-                                                │ letture versionate
-                 ┌──────────────────────────────┼─────────────────────────────┐
-                 ▼                              ▼                             ▼
-          ┌────────────┐               ┌──────────────┐              ┌──────────────┐
-          │ signals/   │──────────────▶│  backtest/   │              │  forecast/   │
-          │  Signal    │  validazione  │ walk-forward │◀─────────────│  Forecaster  │
-          └─────┬──────┘               └──────┬───────┘   confronto   └──────────────┘
-                │                             │          vs baseline
-                ▼                             ▼
-          ┌────────────┐               ┌──────────────┐
-          │  risk/     │               │  validation  │  report persistiti
-          │  sizing    │               │   reports    │
-          └─────┬──────┘               └──────┬───────┘
-                └──────────────┬──────────────┘
-                               ▼
-                        ┌────────────┐        ┌────────────┐
-                        │   api/     │───────▶│ frontend/  │
-                        │  FastAPI   │        │ dashboard  │
-                        └─────┬──────┘        └────────────┘
-                              ▼
-                        ┌────────────┐
-                        │  alerts/   │──▶ Telegram
-                        └────────────┘
+┌──────────────────────────── App DTH (Windows, installer .msi) ────────────────────────────┐
+│                                                                                           │
+│  ┌──────────────── Shell Tauri ────────────────┐      ┌──────── Sidecar Python `dth` ────────┐ │
+│  │  UI React + TS (design "Sala controllo")    │ HTTP │  api/  FastAPI su 127.0.0.1 + token  │ │
+│  │  tab: Panoramica · Temi · Startup · IPO ·   │◀────▶│                                       │ │
+│  │  Materie prime · Confronti · Portafoglio ·  │      │  connectors/  registro fonti          │ │
+│  │  Fonti · Impostazioni                       │      │  providers/   dati    news/  notizie  │ │
+│  │  portachiavi Windows (segreti)              │      │  store/       DuckDB + Parquet        │ │
+│  └─────────────────────────────────────────────┘      │  signals/  backtest/  risk/           │ │
+│                                                       │  forecast/ (plug-in TSFM scaricabili) │ │
+│                                                       │  highlights/ regole di evidenza       │ │
+│                                                       │  llm/  provider opzionale             │ │
+│                                                       │  jobs/ aggiornamenti pianificati      │ │
+│                                                       └──────────────┬────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────┼──────────────────────────┘
+                                                                       │
+          Fonti dati e notizie (registro aggiornabile) · Broker/exchange in sola lettura · LLM utente
+                                                                       │
+                                     (opzionale) NUC con lo stesso backend in Docker per i job notturni
 ```
+
+Dati utente in `%LOCALAPPDATA%\DTH\`: `lake/` (Parquet), `dth.duckdb`, `config/`, `logs/`, `models/`.
 
 ## Layer e contratti
+
+### `connectors/` — registro fonti
+- Il **registro fonti** (`config/sources.example.yaml`, schema in `dth.core.sources`) elenca ogni
+  fonte con tipo (`data`, `news`, `portal`, `llm`), categorie, accesso, costo, autenticazione,
+  affidabilità e stato. L'utente può aggiungere, disattivare e riordinare le fonti dalla tab
+  *Fonti*; gli aggiornamenti del registro non richiedono una nuova versione dell'app.
+- Ogni fonte attiva è collegata a un adattatore: `DataProvider` (serie storiche), `NewsProvider`
+  (notizie) o `PortalConnector` (saldi e posizioni, sola lettura).
 
 ### `providers/` — `DataProvider`
 ```python
@@ -40,16 +42,33 @@ class DataProvider(Protocol):
     name: str
     def fetch(self, symbol: str, start: date, end: date) -> pd.DataFrame: ...
 ```
-- Restituisce un DataFrame con indice `DatetimeIndex` (tz-naive, data di chiusura) e colonne
-  canoniche (`open, high, low, close, volume` per i prezzi; `value` per le serie macro).
-- Prezzi **aggiustati** per split e dividendi, salvo indicazione contraria nei metadati.
+- DataFrame indicizzato per date di chiusura tz-naive, colonne canoniche
+  (`open, high, low, close, volume` per i prezzi; `value` per le serie macro).
+- Prezzi aggiustati per split e dividendi, salvo indicazione contraria nei metadati.
 - Non salva nulla: la persistenza è compito di `store/`.
 
+### `news/` — `NewsProvider` (M2)
+```python
+class NewsProvider(Protocol):
+    name: str
+    def fetch(self, since: datetime, topics: list[str]) -> list[NewsItem]: ...
+```
+- `NewsItem`: titolo, link, fonte, data di pubblicazione, lingua, entità e temi collegati. Il
+  testo completo degli articoli non si archivia: si conservano titolo, estratto e link.
+
+### `connectors/portals` — `PortalConnector` (M4, [ADR 0005](adr/0005-read-only-connectors-and-secrets.md))
+```python
+class PortalConnector(Protocol):
+    name: str
+    def balances(self) -> list[Balance]: ...
+    def positions(self) -> list[Position]: ...
+```
+- Nessun metodo per inviare ordini. Credenziali dal portachiavi di Windows.
+
 ### `store/` — persistenza
-- DuckDB come motore di query, Parquet come formato su disco (`data/lake/<dataset>/<symbol>.parquet`).
+- DuckDB come motore di query, Parquet su disco (`lake/<dataset>/<symbol>.parquet`).
 - Ogni scrittura registra i metadati (`source`, `fetched_at`, `as_of`).
-- Le letture accettano un `as_of` per riprodurre lo stato dei dati a una certa data
-  (evita il lookahead da revisioni dei dati, rilevante per le serie macro).
+- Le letture accettano un `as_of` per riprodurre lo stato dei dati a una certa data.
 
 ### `signals/` — `Signal`
 ```python
@@ -57,56 +76,67 @@ class Signal(Protocol):
     name: str
     def compute(self, prices: pd.DataFrame) -> pd.DataFrame: ...
 ```
-- Input: prezzi di chiusura (colonne = simboli). Output: **pesi target** in [-1, 1] per data e
-  simbolo, calcolati **solo con informazioni disponibili alla chiusura di quella data**.
-- L'esecuzione avviene alla barra successiva: lo shift lo applica l'harness, non il segnale.
-- Ogni segnale deve passare `tests/test_no_lookahead.py` (perturbazione del futuro → output
-  passato invariato).
+- Output: pesi target in [-1, 1] calcolati solo con informazioni disponibili alla chiusura di
+  quella data. Lo shift di esecuzione lo applica l'harness.
+- Ogni segnale deve passare `tests/test_no_lookahead.py`.
 
-### `forecast/` — `Forecaster`
+### `forecast/` — `Forecaster` e plug-in di modelli
 ```python
 class Forecaster(Protocol):
     name: str
-    def forecast(self, history: pd.Series, horizon: int) -> ForecastResult: ...
+    def forecast(self, history: np.ndarray, horizon: int) -> ForecastResult: ...
 ```
-- `ForecastResult` contiene la previsione puntuale e i quantili (es. 0.1/0.5/0.9).
-- Le implementazioni pesanti (TimesFM, Chronos) stanno dietro l'extra opzionale `[tsfm]` e non
-  vengono mai importate dai moduli core.
+- Baseline sempre incluse (EWMA, quantili storici). I modelli foundation (TimesFM 2.5,
+  Chronos-2, Moirai-2, Kronos) sono **plug-in** scaricati su richiesta in `models/`.
+- La tab *Modelli* mostra per ciascuno lo skill score vs baseline in walk-forward; un modello con
+  skill ≤ 0 si nasconde da solo ([ADR 0002](adr/0002-models-are-not-oracles.md)).
 
-### `backtest/` — harness
-- `walk_forward(signal, prices, config)`: finestre rolling o espanse di train e test; il segnale
-  vede solo il passato; costi di transazione e slippage in punti base; ribilanciamento periodico.
-- `metrics.py`: CAGR, volatilità, Sharpe, Sortino, max drawdown, Calmar, turnover, hit rate.
-- Output: `ValidationReport` serializzabile (JSON) che la UI mostra come scheda di validazione.
+### `highlights/` — regole di evidenza ([ADR 0004](adr/0004-information-vs-signals-and-highlight-rules.md))
+```python
+class HighlightRule(Protocol):
+    id: str
+    level: Literal["attention", "critical"]
+    def evaluate(self, ctx: Context) -> Highlight | None: ...
+```
+- Ogni `Highlight` porta con sé regola, dati usati, timestamp e scadenza: è ciò che la UI mostra
+  quando l'utente chiede "perché è colorato?".
 
-### `risk/`
-- Volatility targeting, limite di esposizione per singolo strumento e totale, stop basati su ATR.
-- I limiti di policy ([`RISK_POLICY.md`](RISK_POLICY.md)) sono codice testato, non testo.
+### `llm/` — provider opzionale
+- Interfaccia unica per Anthropic, OpenAI e Ollama (locale). Usi: riassunti delle notizie, schede
+  aziende e IPO, domande in linguaggio naturale sui dati, proposte di regole.
+- Senza chiave configurata, le funzioni LLM sono nascoste e il resto dell'app funziona.
+
+### `backtest/`, `risk/`
+- Invariati: walk-forward con costi, metriche, limiti di policy come codice testato.
 
 ### `api/`
-- FastAPI, sola lettura nella Fase 1. Endpoint principali: `/health`, `/universe`,
-  `/prices/{symbol}`, `/signals`, `/validation/{signal}`, `/risk`, `/data-health`.
-- OpenAPI su `/docs`: il frontend genera i tipi TypeScript dallo schema.
-
-### `alerts/`
-- Regole YAML → notifiche Telegram, con cooldown per evitare lo spam.
+- FastAPI su `127.0.0.1`, porta assegnata da Tauri all'avvio, header `X-DTH-Token` obbligatorio.
+- Sola lettura verso l'esterno; le scritture riguardano solo configurazione locale (fonti,
+  watchlist, regole, journal).
+- OpenAPI su `/docs`: i tipi TypeScript si generano dallo schema.
 
 ## Scelte tecnologiche
 
 | Area | Scelta | Motivo |
 |---|---|---|
-| Linguaggio backend | Python ≥ 3.11 | Ecosistema quant e ML |
-| Dati | pandas, DuckDB, Parquet | Semplice, veloce, zero server DB |
-| API | FastAPI + pydantic | Tipi, OpenAPI, asincrono |
-| Scheduling | APScheduler (in-process) | Basta per un nodo singolo |
-| Frontend | Da confermare (vedi [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md)) — proposta: Vite + React + TS, `lightweight-charts`, D3 per le viste custom | |
-| Deploy | Docker Compose sul NUC | Già il pattern dell'infrastruttura di casa |
+| Shell desktop | Tauri 2 (WebView2) | Installer leggero, aggiornamenti firmati, sidecar nativo |
+| UI | Vite + React + TypeScript | Ecosistema dei grafici più ricco |
+| Grafici | `lightweight-charts` (prezzi), D3 (banda di regime, confronti custom) | |
+| Backend | Python ≥ 3.11, FastAPI, pandas, DuckDB, Parquet | Ecosistema quant e ML |
+| Impacchettamento backend | PyInstaller → eseguibile sidecar | Nessun Python richiesto all'utente |
+| Segreti | Credential Manager di Windows via `keyring` | Fuori da file e log |
+| Scheduling | APScheduler nel sidecar (job quando l'app è aperta) + NUC opzionale per i notturni | |
 
-## Deploy
+## Build e distribuzione
+
+- `make test` / `make check`: backend su Linux (CI attuale).
+- CI Windows (M2): build del sidecar con PyInstaller, build Tauri, artefatto `.msi`.
+- Aggiornamenti: updater di Tauri con manifest firmato su GitHub Releases.
+
+## Deploy opzionale sul NUC
 
 ```
-docker compose up -d           # api + scheduler
-docker compose logs -f api
+docker compose up -d
 ```
-Volumi: `./data` (lake Parquet + DuckDB), `./config` (universo e regole di alert).
-Accesso solo da LAN o tramite VPN/Tailscale: **nessuna esposizione pubblica** dell'API.
+Il backend gira identico; l'app desktop può collegarsi al NUC (impostazione *Backend remoto*)
+tramite LAN o Tailscale. **Nessuna esposizione pubblica** dell'API.

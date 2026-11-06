@@ -1,11 +1,13 @@
-# Frontend (da costruire in M2)
+# Frontend — app desktop Tauri (da costruire in M2)
 
 Prima di iniziare:
-1. Chiudere le questioni 9 (stack) e 10 (design) di [`../docs/OPEN_QUESTIONS.md`](../docs/OPEN_QUESTIONS.md).
-2. Leggere [`../docs/DESIGN.md`](../docs/DESIGN.md): direzione "Sala controllo", colore solo per
-   gli stati fuori norma.
+1. Leggere [ADR 0003](../docs/adr/0003-windows-desktop-app-with-tauri.md) (Tauri + sidecar
+   Python) e [ADR 0004](../docs/adr/0004-information-vs-signals-and-highlight-rules.md)
+   (il colore nasce solo dalle regole di evidenza).
+2. Leggere [`../docs/DESIGN.md`](../docs/DESIGN.md): direzione "Sala controllo".
+3. Tab e pannelli: [`../docs/MODULES.md`](../docs/MODULES.md).
 
-Stack proposto: Vite + React + TypeScript, `lightweight-charts` per i prezzi, D3 per la banda di
-regime e le viste custom, tipi generati con `openapi-typescript` da `http://localhost:8000/openapi.json`.
+Stack: Tauri 2 + Vite + React + TypeScript, `lightweight-charts` per i prezzi, D3 per la banda di
+regime e i confronti, tipi generati con `openapi-typescript` dallo schema OpenAPI del sidecar.
 
 Shape di riferimento dei dati: `GET /validation/demo` (scheda di validazione su dati sintetici).

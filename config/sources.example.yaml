@@ -1,0 +1,416 @@
+# Registro fonti di DTH (schema: backend/src/dth/core/sources.py).
+# L'utente può aggiungere, disattivare e riordinare le fonti dalla tab "Fonti".
+# Costi, limiti e termini d'uso cambiano: verificarli prima di attivare ogni fonte.
+#
+# kind:        data | news | portal | llm
+# access:      api | csv | rss | web | manual
+# cost:        free | freemium | paid | account
+# auth:        none | key | oauth | account
+# reliability: A (ufficiale/primaria) | B (affidabile, secondaria) | C (non ufficiale, da incrociare)
+# status:      active | planned | disabled
+# categories:  prices, macro, rates, volatility, positioning, sentiment, events, news,
+#              real_estate, etf, indices, crypto, commodities, startups, ipo, filings, portfolio, llm
+version: 1
+sources:
+  # ── Prezzi e mercati ────────────────────────────────────────────────────────
+  - id: yfinance
+    name: Yahoo Finance (yfinance)
+    kind: data
+    categories: [prices, etf, indices, commodities, crypto]
+    url: https://finance.yahoo.com
+    access: api
+    cost: free
+    auth: none
+    reliability: C
+    status: active
+    notes: Non ufficiale, può rompersi. Sempre incrociata con una seconda fonte.
+  - id: stooq
+    name: Stooq
+    kind: data
+    categories: [prices, indices, etf]
+    url: https://stooq.com
+    access: csv
+    cost: free
+    auth: none
+    reliability: B
+    status: planned
+  - id: eodhd
+    name: EOD Historical Data
+    kind: data
+    categories: [prices, etf, indices]
+    url: https://eodhd.com
+    access: api
+    cost: paid
+    auth: key
+    reliability: B
+    status: planned
+    notes: Candidata per gli ETF UCITS su Borsa Italiana e Xetra.
+  - id: borsa_italiana
+    name: Borsa Italiana / Euronext Milan
+    kind: data
+    categories: [prices, etf, ipo, events]
+    url: https://www.borsaitaliana.it
+    access: web
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+    notes: Calendari, nuove quotazioni, dati ETFplus. Verificare i termini d'uso prima dell'automazione.
+
+  # ── Macro, tassi, condizioni finanziarie ────────────────────────────────────
+  - id: fred
+    name: FRED — Federal Reserve Bank of St. Louis
+    kind: data
+    categories: [macro, rates, commodities]
+    url: https://fred.stlouisfed.org
+    access: api
+    cost: free
+    auth: key
+    reliability: A
+    status: planned
+  - id: ecb
+    name: ECB Data Portal
+    kind: data
+    categories: [macro, rates, real_estate]
+    url: https://data.ecb.europa.eu
+    access: api
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+  - id: eurostat
+    name: Eurostat
+    kind: data
+    categories: [macro, real_estate]
+    url: https://ec.europa.eu/eurostat
+    access: api
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+  - id: istat
+    name: ISTAT
+    kind: data
+    categories: [macro, real_estate]
+    url: https://www.istat.it
+    access: api
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+    notes: Indice dei prezzi delle abitazioni, inflazione, produzione.
+  - id: omi
+    name: Agenzia delle Entrate — Osservatorio del Mercato Immobiliare
+    kind: data
+    categories: [real_estate]
+    url: https://www.agenziaentrate.gov.it
+    access: csv
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+    notes: Quotazioni semestrali per zona.
+  - id: bancaditalia
+    name: Banca d'Italia — Base dati statistica
+    kind: data
+    categories: [macro, rates, real_estate]
+    url: https://www.bancaditalia.it
+    access: api
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+
+  # ── Volatilità e posizionamento ─────────────────────────────────────────────
+  - id: cboe
+    name: Cboe (VIX, VIX3M, put/call)
+    kind: data
+    categories: [volatility, sentiment]
+    url: https://www.cboe.com
+    access: csv
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+  - id: cftc_cot
+    name: CFTC Commitments of Traders
+    kind: data
+    categories: [positioning, commodities]
+    url: https://www.cftc.gov
+    access: csv
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+  - id: aaii
+    name: AAII Investor Sentiment Survey
+    kind: data
+    categories: [sentiment]
+    url: https://www.aaii.com
+    access: manual
+    cost: freemium
+    auth: account
+    reliability: B
+    status: planned
+
+  # ── Materie prime e crypto ──────────────────────────────────────────────────
+  - id: worldbank_pinksheet
+    name: World Bank Commodity Price Data (Pink Sheet)
+    kind: data
+    categories: [commodities]
+    url: https://www.worldbank.org/en/research/commodity-markets
+    access: csv
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+    notes: Mensile, lunga storia.
+  - id: lbma
+    name: LBMA Gold & Silver Price
+    kind: data
+    categories: [commodities]
+    url: https://www.lbma.org.uk
+    access: web
+    cost: freemium
+    auth: none
+    reliability: A
+    status: planned
+    notes: Benchmark ufficiale; verificare licenza per l'uso dei dati.
+  - id: coingecko
+    name: CoinGecko
+    kind: data
+    categories: [crypto]
+    url: https://www.coingecko.com
+    access: api
+    cost: freemium
+    auth: key
+    reliability: B
+    status: planned
+
+  # ── Eventi, filing, IPO, startup ────────────────────────────────────────────
+  - id: sec_edgar
+    name: SEC EDGAR
+    kind: data
+    categories: [filings, ipo, events]
+    url: https://www.sec.gov/edgar
+    access: api
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+    notes: Prospetti S-1/F-1, Form 4, 13F. Richiede uno User-Agent identificativo generico dell'app.
+  - id: nasdaq_ipo
+    name: Nasdaq IPO Calendar
+    kind: data
+    categories: [ipo, events]
+    url: https://www.nasdaq.com/market-activity/ipos
+    access: web
+    cost: free
+    auth: none
+    reliability: B
+    status: planned
+  - id: fed_calendar
+    name: Federal Reserve — calendario FOMC
+    kind: data
+    categories: [events, rates]
+    url: https://www.federalreserve.gov
+    access: web
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+  - id: ecb_calendar
+    name: BCE — calendario riunioni di politica monetaria
+    kind: data
+    categories: [events, rates]
+    url: https://www.ecb.europa.eu
+    access: web
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+  - id: polymarket
+    name: Polymarket
+    kind: data
+    categories: [events, sentiment]
+    url: https://polymarket.com
+    access: api
+    cost: free
+    auth: none
+    reliability: B
+    status: planned
+    notes: Probabilità implicite su eventi macro. Verificare i termini d'uso dall'Italia.
+  - id: dealroom
+    name: Dealroom
+    kind: data
+    categories: [startups]
+    url: https://dealroom.co
+    access: api
+    cost: paid
+    auth: key
+    reliability: B
+    status: disabled
+    notes: Database startup europeo; alternativa a pagamento a Crunchbase.
+  - id: mamacrowd
+    name: Mamacrowd
+    kind: portal
+    categories: [startups, real_estate]
+    url: https://mamacrowd.com
+    access: web
+    cost: account
+    auth: account
+    reliability: B
+    status: planned
+    notes: Equity crowdfunding italiano; campagne aperte per la tab Startup.
+  - id: crowdcube
+    name: Crowdcube
+    kind: portal
+    categories: [startups]
+    url: https://www.crowdcube.eu
+    access: web
+    cost: account
+    auth: account
+    reliability: B
+    status: planned
+  - id: walliance
+    name: Walliance
+    kind: portal
+    categories: [real_estate]
+    url: https://www.walliance.eu
+    access: web
+    cost: account
+    auth: account
+    reliability: B
+    status: planned
+    notes: Crowdfunding immobiliare.
+
+  # ── Notizie ─────────────────────────────────────────────────────────────────
+  - id: gdelt
+    name: GDELT Project
+    kind: news
+    categories: [news, sentiment]
+    url: https://www.gdeltproject.org
+    access: api
+    cost: free
+    auth: none
+    reliability: B
+    status: planned
+  - id: ecb_press
+    name: BCE — comunicati stampa
+    kind: news
+    categories: [news, rates]
+    url: https://www.ecb.europa.eu/press
+    access: rss
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+  - id: fed_press
+    name: Federal Reserve — press releases
+    kind: news
+    categories: [news, rates]
+    url: https://www.federalreserve.gov/newsevents.htm
+    access: rss
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+  - id: consob
+    name: Consob — avvisi e provvedimenti
+    kind: news
+    categories: [news, ipo]
+    url: https://www.consob.it
+    access: web
+    cost: free
+    auth: none
+    reliability: A
+    status: planned
+    notes: Include gli avvisi su siti abusivi; utile come filtro anti-truffa per piattaforme nuove.
+  - id: sole24ore
+    name: Il Sole 24 Ore — Finanza e mercati (RSS)
+    kind: news
+    categories: [news]
+    url: https://www.ilsole24ore.com
+    access: rss
+    cost: freemium
+    auth: none
+    reliability: B
+    status: planned
+    notes: Solo titolo, estratto e link; nessun archivio dei testi completi.
+  - id: google_trends
+    name: Google Trends
+    kind: data
+    categories: [sentiment]
+    url: https://trends.google.com
+    access: api
+    cost: free
+    auth: none
+    reliability: C
+    status: planned
+
+  # ── Portali di trading (sola lettura, ADR 0005) ─────────────────────────────
+  - id: ibkr
+    name: Interactive Brokers
+    kind: portal
+    categories: [portfolio, prices]
+    url: https://www.interactivebrokers.com
+    access: api
+    cost: account
+    auth: account
+    reliability: A
+    status: planned
+  - id: directa
+    name: Directa SIM
+    kind: portal
+    categories: [portfolio]
+    url: https://www.directa.it
+    access: api
+    cost: account
+    auth: account
+    reliability: A
+    status: planned
+    notes: Verificare disponibilità e condizioni delle API per la lettura delle posizioni.
+  - id: ccxt_exchanges
+    name: Exchange crypto via ccxt (Kraken, Coinbase, Bitstamp…)
+    kind: portal
+    categories: [portfolio, crypto]
+    url: https://github.com/ccxt/ccxt
+    access: api
+    cost: account
+    auth: key
+    reliability: B
+    status: planned
+    notes: Chiavi solo lettura, senza prelievo.
+
+  # ── LLM (opzionali, con l'account dell'utente) ──────────────────────────────
+  - id: anthropic
+    name: Anthropic API (Claude)
+    kind: llm
+    categories: [llm]
+    url: https://docs.claude.com
+    access: api
+    cost: account
+    auth: key
+    reliability: A
+    status: disabled
+  - id: openai
+    name: OpenAI API
+    kind: llm
+    categories: [llm]
+    url: https://platform.openai.com
+    access: api
+    cost: account
+    auth: key
+    reliability: A
+    status: disabled
+  - id: ollama
+    name: Ollama (modelli locali)
+    kind: llm
+    categories: [llm]
+    url: https://ollama.com
+    access: api
+    cost: free
+    auth: none
+    reliability: B
+    status: disabled
+    notes: Nessun dato lascia il PC.

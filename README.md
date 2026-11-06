@@ -3,9 +3,11 @@
 > Il punto focale di tutte le informazioni rilevanti per decidere *se, cosa e quanto* tradare.
 > Non un oracolo: un cruscotto di contesto, rischio e strategie validate.
 
-DTH è un'applicazione self-hosted (gira sul NUC di casa) che raccoglie dati di mercato, macro,
-volatilità, posizionamento, calendario eventi e sentiment, li trasforma in **segnali validati
-fuori campione** e li presenta in una dashboard unica, con alert su Telegram.
+DTH è un'**applicazione desktop per Windows** (Tauri + backend Python incluso) che riunisce dati
+di mercato, macro, notizie, temi (immobiliare, ETF, indici, crypto, materie prime), startup, IPO
+e posizioni dei portali di trading in una dashboard unica. Usa modelli per serie storiche
+(TimesFM, Chronos, Kronos…) come strumenti di contesto, un LLM opzionale con l'account
+dell'utente, e **si colora solo quando una regola esplicita trova qualcosa da considerare**.
 
 ## Principi non negoziabili
 
@@ -19,7 +21,9 @@ fuori campione** e li presenta in una dashboard unica, con alert su Telegram.
 4. **Dati prima dei modelli.** Qualità, freschezza e tracciabilità del dato sono monitorate e
    visibili.
 5. **Paper prima del live.** L'esecuzione automatica è l'ultima milestone, dietro gate espliciti
-   (vedi [`docs/RISK_POLICY.md`](docs/RISK_POLICY.md)).
+   (vedi [`docs/RISK_POLICY.md`](docs/RISK_POLICY.md)). I connettori ai portali sono in sola lettura.
+6. **Informazione ≠ segnale.** Notizie, startup, IPO e forecast informano; solo le strategie
+   validate producono pesi. Ogni colore in UI è spiegato dalla regola che l'ha acceso.
 
 ## Mappa della documentazione
 
@@ -52,8 +56,8 @@ backend/            Pacchetto Python `dth` (API, ingestione, segnali, backtest, 
     alerts/         Notifiche (Telegram)
     api/            FastAPI
   tests/            Test unitari + harness anti-lookahead
-frontend/           Applicazione web (da costruire, vedi docs/DESIGN.md)
-config/             Universo strumenti, configurazioni di esempio
+frontend/           App desktop Tauri + React (da costruire, vedi docs/DESIGN.md)
+config/             Universo, registro fonti, regole di evidenza, alert (esempi)
 docs/               Documentazione di progetto
 ```
 
@@ -67,7 +71,8 @@ make api            # avvia l'API su http://localhost:8000 (docs su /docs)
 make backtest       # esegue un walk-forward di esempio su dati sintetici
 ```
 
-Sul NUC: `docker compose up -d` (vedi [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#deploy)).
+Installer Windows: dalla milestone M2 (vedi [`docs/ROADMAP.md`](docs/ROADMAP.md)).
+Backend opzionale sul NUC: `docker compose up -d`.
 
 ## Stato
 

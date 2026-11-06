@@ -1,0 +1,87 @@
+# Regole di evidenza (ADR 0004). Il colore in UI nasce SOLO da queste regole.
+# level: attention (Ambra) | critical (Colata). Le regole con locked: true derivano da
+# RISK_POLICY e non si possono disattivare.
+max_active: 5
+rules:
+  # ── Rischio (sempre attive) ─────────────────────────────────────────────────
+  - id: drawdown_warning
+    category: risk
+    level: attention
+    when: "drawdown di portafoglio <= dd_warning"
+    locked: true
+  - id: drawdown_stop
+    category: risk
+    level: critical
+    when: "drawdown di portafoglio <= dd_stop"
+    locked: true
+  - id: concentration
+    category: risk
+    level: attention
+    when: "un singolo titolo supera il 10% del patrimonio, look-through ETF incluso"
+    locked: true
+
+  # ── Regime di mercato ───────────────────────────────────────────────────────
+  - id: vix_backwardation
+    category: regime
+    level: attention
+    when: "VIX / VIX3M > 1 per 2 sedute consecutive"
+    cooldown_hours: 24
+  - id: hy_spread_jump
+    category: regime
+    level: attention
+    when: "spread high yield +100 bps in 20 sedute"
+    cooldown_hours: 72
+  - id: regime_change
+    category: regime
+    level: attention
+    when: "il regime stimato cambia stato e lo mantiene per 5 sedute"
+    cooldown_hours: 120
+
+  # ── Segnali ─────────────────────────────────────────────────────────────────
+  - id: signal_change
+    category: signals
+    level: attention
+    when: "il peso target di una strategia validata cambia di oltre 5 punti"
+    cooldown_hours: 24
+
+  # ── Eventi, IPO, startup ────────────────────────────────────────────────────
+  - id: central_bank_week
+    category: events
+    level: attention
+    when: "riunione Fed o BCE entro 3 giorni"
+    expires: "dopo l'evento"
+  - id: ipo_watchlist
+    category: ipo
+    level: attention
+    when: "un'azienda della watchlist startup annuncia o apre un'IPO"
+  - id: lockup_expiry
+    category: ipo
+    level: attention
+    when: "scadenza del lock-up entro 10 giorni per un titolo in portafoglio o watchlist"
+  - id: startup_round
+    category: startups
+    level: attention
+    when: "nuovo round o campagna di crowdfunding per un'azienda della watchlist"
+
+  # ── Temi e notizie ──────────────────────────────────────────────────────────
+  - id: watchlist_news
+    category: news
+    level: attention
+    when: "notizia ad alta rilevanza (fonte A o B) su un elemento della watchlist"
+    cooldown_hours: 12
+  - id: btp_bund_spread
+    category: themes
+    level: attention
+    when: "spread BTP-Bund sopra la soglia impostata dall'utente"
+    cooldown_hours: 24
+
+  # ── Dati ────────────────────────────────────────────────────────────────────
+  - id: stale_source
+    category: data
+    level: attention
+    when: "una fonte attiva non si aggiorna da oltre 2 giorni lavorativi"
+    cooldown_hours: 24
+  - id: broken_source
+    category: data
+    level: critical
+    when: "una fonte attiva fallisce 3 aggiornamenti consecutivi"

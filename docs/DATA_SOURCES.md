@@ -1,60 +1,61 @@
-# Fonti dati
+# Fonti dati, notizie e connettori
 
-Regola: ogni fonte ha un adattatore in `backend/src/dth/providers/` che implementa il contratto
-`DataProvider` (vedi [`ARCHITECTURE.md`](ARCHITECTURE.md)). Nessun modulo legge una fonte
-direttamente.
+## Il registro fonti è la fonte di verità
 
-> ⚠️ Costi, limiti e termini d'uso cambiano: verificarli prima di implementare ogni adattatore e
-> aggiornare questa tabella.
+L'elenco completo e aggiornabile è in [`config/sources.example.yaml`](../config/sources.example.yaml),
+validato dallo schema `dth.core.sources` (test in `backend/tests/test_sources.py`).
+Nell'app, la tab *Fonti* permette di aggiungere, disattivare e verificare le fonti senza
+aggiornare il software. Nessun URL di fonte va scritto nel codice (CLAUDE.md, regola 10).
 
-## Prezzi
+Ogni fonte dichiara:
 
-| Fonte | Copertura | Costo | Note |
-|---|---|---|---|
-| yfinance (Yahoo) | Globale, inclusi ETF UCITS (`.MI`, `.DE`, `.L`, `.AS`) | Gratis | Non ufficiale, può rompersi: va bene per la ricerca, non come unica fonte |
-| Stooq | Indici, ETF, azioni | Gratis | Utile come fonte secondaria e per i controlli incrociati |
-| Tiingo | USA, buona qualità EOD | Gratis o economico | Ottima per azioni e ETF USA |
-| EODHD | Borse EU incluse (Borsa Italiana, Xetra) | A pagamento | Candidata come fonte "seria" per gli UCITS |
-| Interactive Brokers API | Quello che il conto vede | Con il conto | Fonte di verità per l'esecuzione |
+| Campo | Valori |
+|---|---|
+| `kind` | `data` (serie storiche), `news`, `portal` (broker, exchange, crowdfunding), `llm` |
+| `categories` | prezzi, macro, tassi, volatilità, posizionamento, sentiment, eventi, notizie, immobiliare, ETF, indici, crypto, materie prime, startup, IPO, filing, portafoglio, LLM |
+| `access` | `api`, `csv`, `rss`, `web`, `manual` |
+| `cost` | `free`, `freemium`, `paid`, `account` |
+| `reliability` | **A** ufficiale o primaria · **B** affidabile, secondaria · **C** non ufficiale, da incrociare |
+| `status` | `active`, `planned`, `disabled` |
 
-## Macro e condizioni finanziarie
+> ⚠️ Costi, limiti e termini d'uso cambiano: verificarli prima di attivare ogni fonte. Per le
+> fonti `web` serve controllare che l'uso automatizzato sia consentito; in caso contrario restano
+> come link manuali.
 
-| Fonte | Cosa | Costo |
+## Sintesi per categoria (stato del registro al 2026-11-06)
+
+| Categoria | Fonti principali | Affidabilità |
 |---|---|---|
-| FRED (St. Louis Fed) | Curva dei tassi, spread HY, NFCI, inflazione, occupazione | Gratis (API key) |
-| ECB Data Portal | Tassi BCE, €STR, aggregati monetari area euro | Gratis |
-| Eurostat | Macro UE | Gratis |
+| Prezzi ed ETF | yfinance (ricerca), Stooq, EODHD (UCITS UE), Borsa Italiana | C / B / B / A |
+| Macro e tassi | FRED, ECB Data Portal, Eurostat, ISTAT, Banca d'Italia | A |
+| Immobiliare | ISTAT (prezzi abitazioni), OMI Agenzia Entrate, BCE (mutui), Walliance, Mamacrowd, scraper annunci personale | A / B |
+| Volatilità e posizionamento | Cboe, CFTC COT, AAII | A / B |
+| Materie prime e oro | World Bank Pink Sheet, LBMA, FRED | A |
+| Crypto | CoinGecko, exchange via ccxt | B |
+| Eventi | Fed, BCE, Polymarket | A / B |
+| IPO e filing | SEC EDGAR, Nasdaq IPO calendar, Borsa Italiana, Consob | A / B |
+| Startup | Mamacrowd, Crowdcube, Dealroom (a pagamento, disattivata) | B |
+| Notizie | GDELT, comunicati BCE e Fed, Consob, Il Sole 24 Ore (RSS) | A / B |
+| Portali (sola lettura) | IBKR, Directa, exchange crypto via ccxt | A / B |
+| LLM (opzionali) | Anthropic, OpenAI, Ollama locale | — |
 
-## Volatilità, opzioni, posizionamento
+## Modelli per serie storiche (plug-in)
 
-| Fonte | Cosa | Costo |
-|---|---|---|
-| CBOE | VIX, VIX3M, VVIX, SKEW, put/call | Gratis (CSV storici) |
-| CFTC | Commitments of Traders (settimanale) | Gratis |
-| AAII / NAAIM | Sondaggi di sentiment ed esposizione | Gratis o con iscrizione |
-
-## Eventi e sentiment
-
-| Fonte | Cosa | Costo |
-|---|---|---|
-| Calendari banche centrali (Fed, BCE) | Date delle riunioni | Gratis |
-| Polymarket / Kalshi | Probabilità implicite su eventi | API pubbliche (verificare i termini) |
-| GDELT / RSS | Notizie | Gratis |
-| Google Trends (`pytrends`) | Interesse di ricerca | Gratis, rate-limited |
-| SEC EDGAR | Form 4, 13F, trimestrali | Gratis (User-Agent obbligatorio) |
-
-## Modelli
-
-| Modello | Uso | Licenza |
+| Modello | Uso in DTH | Licenza |
 |---|---|---|
 | TimesFM 2.5 (Google) | Forecast di volatilità e quantili | Apache-2.0 |
-| Chronos-2 (Amazon) | Alternativa multivariata | Apache-2.0 |
-| FinBERT | Sentiment delle notizie | Verificare sul model card |
+| Chronos-2 (Amazon) | Alternativa, supporto multivariato | Apache-2.0 |
+| Moirai-2 (Salesforce) | Alternativa, quantili | Verificare sul model card |
+| Kronos | Specifico per dati di mercato a candele (OHLCV) | Verificare sul repository |
 | `hmmlearn` | Rilevazione di regime | BSD |
 | `arch` | GARCH (baseline di volatilità) | NCSA |
+| FinBERT | Sentiment delle notizie | Verificare sul model card |
 
 ## Contratto di qualità
 
-Ogni serie salvata porta con sé: `source`, `fetched_at`, `as_of` (ultima osservazione),
-`adjusted` (sì/no), `currency`. I controlli di qualità (gap, salti > N sigma, valori negativi,
-duplicati) girano a ogni ingestione e alimentano il pannello "Salute dei dati".
+Ogni serie salvata porta con sé `source`, `fetched_at`, `as_of`, `adjusted`, `currency`. A ogni
+ingestione girano i controlli (gap, salti oltre N sigma, valori negativi, duplicati) che
+alimentano la *Salute delle fonti* e le regole `stale_source` e `broken_source`.
+
+Per le notizie si conservano solo titolo, estratto, link, fonte e data: nessun archivio dei
+testi completi degli articoli.

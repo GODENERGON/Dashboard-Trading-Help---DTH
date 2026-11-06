@@ -5,9 +5,10 @@ su DTH. Leggilo per intero prima di modificare il codice.
 
 ## Contesto in 30 secondi
 
-DTH è una dashboard self-hosted di supporto al trading sistematico su ETF UCITS, per un solo
-utente, che gira su un NUC Ubuntu. Il backend è Python (`backend/src/dth`), il frontend è in
-`frontend/` (non ancora costruito). La lingua della documentazione e della UI è l'italiano;
+DTH è un'app desktop per Windows (Tauri + sidecar Python, ADR 0003) di supporto alle decisioni
+di investimento per un solo utente: dati, notizie, temi, startup, IPO, posizioni in sola lettura,
+modelli per serie storiche, LLM opzionale. Il backend è Python (`backend/src/dth`), il frontend è
+in `frontend/` (non ancora costruito). Il NUC è un backend remoto opzionale. La lingua della documentazione e della UI è l'italiano;
 codice, identificatori e commenti sono in inglese.
 
 Leggi in quest'ordine: `README.md` → `docs/ARCHITECTURE.md` → `docs/VALIDATION.md` →
@@ -27,6 +28,12 @@ Leggi in quest'ordine: `README.md` → `docs/ARCHITECTURE.md` → `docs/VALIDATI
 6. **Import pesanti isolati.** `torch`, `timesfm`, `chronos` e simili si importano solo dentro
    `forecast/tsfm_*.py` e in modo lazy. Il core deve installarsi senza l'extra `[tsfm]`.
 7. **I provider non salvano, lo store non scarica.** Rispetta i layer di `ARCHITECTURE.md`.
+8. **Il colore nasce solo da una `HighlightRule`** (ADR 0004). Nessun componente UI decide da
+   solo di evidenziare qualcosa.
+9. **Connettori in sola lettura, segreti nel portachiavi** (ADR 0005). Mai inviare posizioni,
+   saldi o credenziali a un LLM senza consenso esplicito per richiesta.
+10. **Ogni fonte passa dal registro** (`config/sources.example.yaml`): niente URL di fonti
+    scritti nel codice.
 
 ## Workflow
 

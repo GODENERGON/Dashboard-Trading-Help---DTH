@@ -1,45 +1,49 @@
-# Questioni aperte (da chiudere prima di M1/M2)
+# Questioni aperte
 
 Ogni decisione presa qui diventa un ADR in [`adr/`](adr/).
 
-## Mercato e fiscalità (impattano la strategia, non solo il software)
+## Decise
+
+| # | Questione | Decisione |
+|---|---|---|
+| — | Piattaforma | App desktop Windows, Tauri + sidecar Python ([ADR 0003](adr/0003-windows-desktop-app-with-tauri.md)) |
+| 9 | Frontend | Vite + React + TypeScript dentro Tauri |
+| — | Quando si colora la dashboard | Solo da regole esplicite; informazione separata dai segnali ([ADR 0004](adr/0004-information-vs-signals-and-highlight-rules.md)) |
+| — | Connettori e LLM | Sola lettura; segreti nel portachiavi di Windows; LLM opzionale con la chiave dell'utente ([ADR 0005](adr/0005-read-only-connectors-and-secrets.md)) |
+
+## Ancora aperte
+
+### Mercato e fiscalità (impattano la strategia)
 
 1. **Universo solo UCITS.** Un retail residente in UE in pratica non può comprare ETF domiciliati
-   negli USA (SPY, QQQ…) per l'obbligo del KID previsto dal regolamento PRIIPs. Il backtest può
-   usare la storia lunga degli ETF USA come proxy, ma segnali ed esecuzione devono girare sugli
-   equivalenti UCITS (es. CSPX/SXR8, SWDA, EIMI). Decidere: quotazione su Borsa Italiana
-   (ETFplus) o su Xetra? In EUR o in valuta?
-2. **Trattamento fiscale degli ETF in Italia.** Le plusvalenze su ETF sono di norma *redditi di
-   capitale*, quindi non compensabili con le minusvalenze, che invece sono *redditi diversi*. Per
-   una strategia trend con turnover, questa asimmetria può erodere molto il rendimento netto.
-   Da verificare con un commercialista; poi modellarla nell'harness (aliquota 26%, con l'aliquota
-   ridotta per la quota in titoli di Stato dove si applica) e valutare ETC/ETN o un turnover più
-   basso.
-3. **Broker e regime fiscale.** IBKR ha ottime API ma impone il regime dichiarativo (tasse e
-   quadro RW a carico dell'utente). I broker italiani in regime amministrato semplificano le tasse
-   ma raramente offrono API utilizzabili. Quale priorità: automazione o semplicità fiscale?
+   negli USA per l'obbligo del KID (PRIIPs). Il backtest può usare gli ETF USA come proxy di
+   storia lunga; segnali ed esecuzione girano sugli UCITS. Quotazione su Borsa Italiana o Xetra?
+2. **Fiscalità degli ETF in Italia.** Le plusvalenze su ETF sono di norma redditi di capitale (non
+   compensabili), le minusvalenze redditi diversi. Da verificare con un commercialista e poi
+   modellare nell'harness e nella vista fiscale.
+3. **Broker e regime fiscale.** IBKR (ottime API, regime dichiarativo) o broker italiano (regime
+   amministrato, API rare)? Influisce su quale connettore costruire per primo.
 
-## Prodotto
+### Prodotto
 
-4. **Frequenza:** solo dati di fine giornata (proposta) o anche intraday? L'EOD basta per il
-   trend-following e riduce costi e complessità dei dati.
-5. **Budget dati:** si resta su fonti gratuite (yfinance + Stooq + FRED) per M1–M2, oppure si
-   prevede una fonte a pagamento (es. EODHD) per gli UCITS europei?
-6. **Betting:** il progetto TRADING include anche il betting. Sta dentro DTH (un modulo separato)
-   o in un repo a parte? Proposta: repo a parte, perché i dati, la validazione e il rischio sono
-   diversi.
-7. **Lingua UI:** italiano (proposta), con termini tecnici in inglese dove sono lo standard
-   (Sharpe, drawdown).
-8. **Utenti:** uno solo? Serve un'autenticazione se l'accesso è solo da LAN o Tailscale?
-
-## Tecnica
-
-9. **Frontend:** Vite + React + TypeScript (proposta: ecosistema dei grafici più ricco e tipi
-   generati da OpenAPI) oppure server-rendered (FastAPI + HTMX, più semplice da mantenere)?
+4. **Frequenza dei dati:** solo fine giornata (proposta) o anche intraday?
+5. **Budget dati:** solo fonti gratuite per M1–M2, oppure una fonte a pagamento (es. EODHD per
+   gli UCITS, Dealroom per le startup)?
+6. **Betting:** fuori da DTH, in un repo a parte (proposta).
+7. **Lingua UI:** italiano, con i termini tecnici standard in inglese (proposta).
+8. **Limiti per crypto e startup:** confermare i default proposti in [`RISK_POLICY.md`](RISK_POLICY.md)
+   (crypto ≤ 10%, startup e crowdfunding ≤ 5% del patrimonio monitorato).
 10. **Design:** confermare la direzione "Sala controllo" di [`DESIGN.md`](DESIGN.md), tema chiaro
     come principale.
-11. **Script esistente:** `backtest_trend_refined.py` va copiato nel repo (in `research/legacy/`)
-    per essere portato nel contratto `Signal`. Dove si trova l'ultima versione e quali risultati
-    ha dato sui dati reali del NUC?
+13. **Watchlist iniziale startup:** oltre a Newcleo, quali settori e aziende seguire da subito?
+14. **Firma dell'installer:** certificato di code signing (costo annuo) o avviso SmartScreen
+    accettato in una prima fase?
+15. **NUC:** si usa come backend remoto per i job notturni (download dati, ricalcolo modelli)
+    oppure l'app resta solo locale?
+
+### Tecnica
+
+11. **Script esistente:** `backtest_trend_refined.py` va copiato in `research/legacy/` per il
+    porting. Dove si trova l'ultima versione e quali risultati ha dato sui dati reali?
 12. **Capitale e limiti:** confermare i default di [`RISK_POLICY.md`](RISK_POLICY.md) in base al
     capitale iniziale.
