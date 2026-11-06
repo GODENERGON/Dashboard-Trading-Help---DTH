@@ -41,6 +41,11 @@ rules:
     level: attention
     when: "spread high yield +100 bps in 20 sedute"
     cooldown_hours: 72
+  - id: trend_regime
+    category: regime
+    level: attention   # misto = attention, difensivo = critical
+    when: "regime di trend misto o difensivo (definizione pre-registrata il 2026-11-06)"
+    enabled: false     # test pre-registrato fallito: solo informativo, non colora la dashboard
   - id: regime_change
     category: regime
     level: attention

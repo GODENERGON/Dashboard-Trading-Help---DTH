@@ -30,8 +30,14 @@ jobs:
         env:
           START: ${{ inputs.start }}
         run: python -m dth.cli ucits-trend --start "$START" --out reports/ucits_trend
-      - name: Show report
-        run: cat reports/ucits_trend/report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Run core-satellite + regime study (pre-registered)
+        run: >-
+          python -m dth.cli core-satellite
+          --prices-csv reports/ucits_trend/prices_eur.csv --out reports/core_satellite
+      - name: Show reports
+        run: |
+          cat reports/ucits_trend/report.md >> "$GITHUB_STEP_SUMMARY"
+          cat reports/core_satellite/report.md >> "$GITHUB_STEP_SUMMARY"
       - name: Publish results on branch research-results
         run: |
           cp -r reports /tmp/reports

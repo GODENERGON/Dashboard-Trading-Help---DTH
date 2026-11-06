@@ -63,3 +63,21 @@ def test_equal_weighting() -> None:
     w = MultiAssetTrend(top_k=4, weighting="equal", cash_symbol="CASH").compute(px)
     risky = w.drop(columns="CASH")
     assert set(np.unique(risky.to_numpy().round(10))) <= {0.0, 0.25}
+
+
+def test_core_satellite_weights_and_fallback() -> None:
+    from dth.signals import CoreSatellite
+
+    px = _prices_with_cash()
+    px.loc[px.index[:500], "EQ_WORLD"] = np.nan  # world ETF listed later → fallback to EQ_EM
+    sig = CoreSatellite(
+        core=((("EQ_WORLD", "EQ_EM"), 0.6), (("BOND_GOV",), 0.4)),
+        satellite=MultiAssetTrend(cash_symbol="CASH"),
+        satellite_share=0.3,
+    )
+    w = sig.compute(px)
+    assert np.allclose(w.sum(axis=1), 1.0)
+    early, late = px.index[100], px.index[-1]
+    assert w.loc[early, "EQ_EM"] >= 0.42 - 1e-12  # 0.7 * 0.6 from the core fallback
+    assert w.loc[early, "EQ_WORLD"] == 0
+    assert w.loc[late, "BOND_GOV"] >= 0.28 - 1e-12  # 0.7 * 0.4 core bond

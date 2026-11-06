@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from dth.signals import DualMomentumTopK, MultiAssetTrend, TrendFilter
+from dth.signals import CoreSatellite, DualMomentumTopK, MultiAssetTrend, TrendFilter
 from dth.signals.base import Signal
 from dth.testing import synthetic_prices
 
@@ -26,6 +26,10 @@ SIGNALS_UNDER_TEST: list[Signal] = [
     MultiAssetTrend(cash_symbol="BOND_GOV"),
     MultiAssetTrend(lookbacks=(21, 63), sma_window=100, top_k=2, cash_symbol=None),
     MultiAssetTrend(top_k=2, hold_buffer=1, weighting="equal", cash_symbol="BOND_GOV"),
+    CoreSatellite(
+        core=((("EQ_WORLD",), 0.6), (("BOND_GOV",), 0.4)),
+        satellite=MultiAssetTrend(cash_symbol="BOND_GOV"),
+    ),
 ]
 
 

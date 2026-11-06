@@ -71,6 +71,23 @@ def _ucits_trend(args: argparse.Namespace) -> None:
     logging.getLogger(__name__).info("report written to %s", out)
 
 
+def _core_satellite(args: argparse.Namespace) -> None:
+    from dth.backtest.taxes import TaxModel
+    from dth.research.core_satellite import render_core_satellite, run_core_satellite_study
+
+    universe = load_universe(REPO_ROOT / "config" / "universe.example.yaml")
+    prices = pd.read_csv(args.prices_csv, index_col=0, parse_dates=True)
+    tax = TaxModel.from_config(
+        REPO_ROOT / "config" / "tax.it.example.yaml", universe, GOVT_BOND_SHARE
+    )
+    report = run_core_satellite_study(prices, tax)
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "report.json").write_text(json.dumps(report, indent=2, default=str))
+    (out / "report.md").write_text(render_core_satellite(report), encoding="utf-8")
+    logging.getLogger(__name__).info("report written to %s", out)
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(prog="dth")
@@ -83,6 +100,10 @@ def main() -> None:
     p.add_argument("--out", default="reports/ucits_trend")
     p.add_argument("--prices-csv", help="reuse a saved EUR price panel instead of downloading")
     p.set_defaults(func=_ucits_trend)
+    c = sub.add_parser("core-satellite", help="pre-registered core-satellite + regime study")
+    c.add_argument("--prices-csv", required=True, help="EUR panel saved by `ucits-trend`")
+    c.add_argument("--out", default="reports/core_satellite")
+    c.set_defaults(func=_core_satellite)
     args = parser.parse_args()
     args.func(args)
 
