@@ -88,6 +88,23 @@ def _core_satellite(args: argparse.Namespace) -> None:
     logging.getLogger(__name__).info("report written to %s", out)
 
 
+def _allocation_study(args: argparse.Namespace) -> None:
+    from dth.backtest.taxes import TaxModel
+    from dth.research.allocation_study import render_allocation, run_allocation_study
+
+    universe = load_universe(REPO_ROOT / "config" / "universe.example.yaml")
+    prices = pd.read_csv(args.prices_csv, index_col=0, parse_dates=True)
+    tax = TaxModel.from_config(
+        REPO_ROOT / "config" / "tax.it.example.yaml", universe, GOVT_BOND_SHARE
+    )
+    report = run_allocation_study(prices, tax)
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "report.json").write_text(json.dumps(report, indent=2, default=str))
+    (out / "report.md").write_text(render_allocation(report), encoding="utf-8")
+    logging.getLogger(__name__).info("report written to %s", out)
+
+
 def _products_report(args: argparse.Namespace) -> None:
     from dth.products import load_catalog, rank_catalog
     from dth.products.report import render_products_markdown
@@ -113,6 +130,10 @@ def main() -> None:
     c.add_argument("--prices-csv", required=True, help="EUR panel saved by `ucits-trend`")
     c.add_argument("--out", default="reports/core_satellite")
     c.set_defaults(func=_core_satellite)
+    a = sub.add_parser("allocation-study", help="pre-registered skfolio allocation study")
+    a.add_argument("--prices-csv", required=True)
+    a.add_argument("--out", default="reports/allocation")
+    a.set_defaults(func=_allocation_study)
     r = sub.add_parser("products-report", help="render the product ranking to Markdown")
     r.add_argument("--out", default=str(REPO_ROOT / "docs" / "PRODUCTS.md"))
     r.set_defaults(func=_products_report)

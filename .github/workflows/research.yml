@@ -25,7 +25,7 @@ jobs:
           cache: pip
           cache-dependency-path: backend/pyproject.toml
       - name: Install
-        run: pip install -e "backend[data]"
+        run: pip install -e "backend[data,portfolio]"
       - name: Run study
         env:
           START: ${{ inputs.start }}
@@ -34,10 +34,15 @@ jobs:
         run: >-
           python -m dth.cli core-satellite
           --prices-csv reports/ucits_trend/prices_eur.csv --out reports/core_satellite
+      - name: Run skfolio allocation study (pre-registered)
+        run: >-
+          python -m dth.cli allocation-study
+          --prices-csv reports/ucits_trend/prices_eur.csv --out reports/allocation
       - name: Show reports
         run: |
           cat reports/ucits_trend/report.md >> "$GITHUB_STEP_SUMMARY"
           cat reports/core_satellite/report.md >> "$GITHUB_STEP_SUMMARY"
+          cat reports/allocation/report.md >> "$GITHUB_STEP_SUMMARY"
       - name: Publish results on branch research-results
         run: |
           cp -r reports /tmp/reports
