@@ -76,9 +76,13 @@ def test_panel_and_study_end_to_end() -> None:
             "CASH.MI": SymbolTax(CAPITAL, 0.26),
         }
     )
-    report = run_study(panel, tax, cash_symbol="CASH.MI", world="W.MI", bond="B.MI")
-    d = report["default"]
-    assert d["net"]["cagr_after_liquidation_tax"] < d["gross"]["cagr"]
+    report = run_study(panel, tax, cash_symbol="CASH.MI", world="W.MI", us="W.MI", bond="B.MI")
+    full = report["comparisons"]["full"]["rows"]
+    strat = full["strategy"]
+    assert strat["net"]["cagr_after_liquidation_tax"] < strat["gross"]["cagr"]
+    assert {"buy_and_hold_us", "sixty_forty_us"} <= set(full)
+    since = report["comparisons"]["since_world"]
+    assert pd.Timestamp(since["start"]) >= pd.Timestamp(report["comparisons"]["full"]["start"])
     assert len(report["grid"]["rows"]) == 18
     assert report["walk_forward"]["folds"]
     md = render_markdown(report, [m.__dict__ for m in meta])

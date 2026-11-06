@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 
@@ -25,7 +26,27 @@ class MultiAssetTrend:
     vol_window: int = 63
     max_weight: float = 0.25
     cash_symbol: str | None = "XEON.MI"
+    weighting: str = "inverse_vol"  # or "equal"
+    # Hysteresis: an asset already held stays while it is still eligible and ranked within
+    # top_k + hold_buffer. Fewer round trips → lower costs and fewer taxable sales.
+    hold_buffer: int = 0
     name: str = "multi_asset_trend"
+
+    def _with_buffer(self, rank: pd.DataFrame) -> pd.DataFrame:
+        r = rank.to_numpy()
+        out = np.zeros(r.shape, dtype=bool)
+        held = np.zeros(r.shape[1], dtype=bool)
+        for t in range(r.shape[0]):
+            row = r[t]
+            ok = ~np.isnan(row)
+            keep = held & ok & (row <= self.top_k + self.hold_buffer)
+            slots = self.top_k - int(keep.sum())
+            candidates = np.flatnonzero(ok & ~keep)
+            new = candidates[np.argsort(row[candidates])][: max(slots, 0)]
+            held = keep.copy()
+            held[new] = True
+            out[t] = held
+        return pd.DataFrame(out, index=rank.index, columns=rank.columns)
 
     def compute(self, prices: pd.DataFrame) -> pd.DataFrame:
         if self.top_k < 1 or not self.lookbacks:
@@ -38,14 +59,21 @@ class MultiAssetTrend:
         eligible = (mom > 0) & (px > sma)
         rank = mom.where(eligible).rank(axis=1, ascending=False, method="first")
         chosen = rank <= self.top_k
+        if self.hold_buffer > 0:
+            chosen = self._with_buffer(rank)
 
-        vol = (
-            px.pct_change(fill_method=None)
-            .rolling(self.vol_window, min_periods=self.vol_window)
-            .std()
-        )
-        inv_vol = (1.0 / vol).where(chosen & (vol > 0))
-        w = inv_vol.div(inv_vol.sum(axis=1), axis=0)
+        if self.weighting == "equal":
+            w = chosen.astype(float) / self.top_k
+        elif self.weighting == "inverse_vol":
+            vol = (
+                px.pct_change(fill_method=None)
+                .rolling(self.vol_window, min_periods=self.vol_window)
+                .std()
+            )
+            inv_vol = (1.0 / vol).where(chosen & (vol > 0))
+            w = inv_vol.div(inv_vol.sum(axis=1), axis=0)
+        else:
+            raise ValueError(f"unknown weighting {self.weighting!r}")
         w = w.clip(upper=self.max_weight).fillna(0.0)
 
         out = pd.DataFrame(0.0, index=prices.index, columns=prices.columns)

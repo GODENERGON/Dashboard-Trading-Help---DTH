@@ -25,6 +25,7 @@ SIGNALS_UNDER_TEST: list[Signal] = [
     DualMomentumTopK(lookback=126, top_k=1, skip=0),
     MultiAssetTrend(cash_symbol="BOND_GOV"),
     MultiAssetTrend(lookbacks=(21, 63), sma_window=100, top_k=2, cash_symbol=None),
+    MultiAssetTrend(top_k=2, hold_buffer=1, weighting="equal", cash_symbol="BOND_GOV"),
 ]
 
 

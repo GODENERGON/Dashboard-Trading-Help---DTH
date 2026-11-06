@@ -43,7 +43,8 @@ def simulate_portfolio(
 ) -> PortfolioResult:
     config = config or BacktestConfig()
     targets = validate_weights(signal.compute(prices), prices)
-    decide = _rebalance_mask(prices.index, config.rebalance).to_numpy()
+    decide = _rebalance_mask(prices.index, config.rebalance).to_numpy().copy()
+    decide[0] = True  # initial allocation at the first close (traded at the next one)
 
     px = prices.to_numpy(dtype=float)
     tgt = targets.to_numpy(dtype=float)
@@ -72,6 +73,12 @@ def simulate_portfolio(
             if decide[t - 1]:
                 total = value.sum() + cash
                 target = tgt[t - 1] * total
+                if config.rebalance_band > 0 and total > 0:
+                    cur_w, tgt_w = value / total, tgt[t - 1]
+                    keep = (
+                        (np.abs(tgt_w - cur_w) <= config.rebalance_band) & (tgt_w > 0) & (cur_w > 0)
+                    )
+                    target = np.where(keep, value, target)
                 delta = target - value
                 for i in np.flatnonzero(delta < -1e-9):
                     frac = -delta[i] / value[i] if value[i] > 0 else 0.0

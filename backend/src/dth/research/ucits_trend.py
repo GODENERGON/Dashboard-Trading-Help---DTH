@@ -140,9 +140,22 @@ class _StaticWeights:
         return dict(self.weights)
 
 
-def _summary(res: PortfolioResult, start: pd.Timestamp | None = None) -> dict[str, float]:
-    eq = res.equity if start is None else res.equity.loc[start:]
-    rets = eq.pct_change().dropna()
+class _Windowed:
+    """Signal computed on the full history (causal warm-up), traded only inside a window."""
+
+    def __init__(self, signal: Any, full: pd.DataFrame, start: pd.Timestamp) -> None:
+        self._w = signal.compute(full).loc[start:]
+        self.name = signal.name
+
+    def compute(self, prices: pd.DataFrame) -> pd.DataFrame:
+        return self._w.loc[prices.index]
+
+    def params(self) -> dict[str, Any]:
+        return {}
+
+
+def _summary(res: PortfolioResult) -> dict[str, float]:
+    rets = res.equity.pct_change().dropna()
     m = compute_metrics(rets)
     years = m["years"]
     out = {
@@ -150,9 +163,9 @@ def _summary(res: PortfolioResult, start: pd.Timestamp | None = None) -> dict[st
         "volatility": m["volatility"],
         "sharpe": m["sharpe"],
         "max_drawdown": m["max_drawdown"],
-        "annual_turnover": float(res.turnover.loc[eq.index].sum() / years),
+        "annual_turnover": float(res.turnover.sum() / years),
     }
-    if start is None and np.isfinite(res.liquidation_value):
+    if res.tax_history:
         out["cagr_after_liquidation_tax"] = (res.liquidation_value / INITIAL) ** (1 / years) - 1
         out["taxes_paid_total"] = float(res.taxes_paid.sum())
     return out
@@ -166,48 +179,84 @@ def _yearly(res: PortfolioResult) -> dict[int, float]:
     return {int(y): float(v) for y, v in (ye / prev - 1).items()}
 
 
+def _pair(sig: Any, prices: pd.DataFrame, cfg: BacktestConfig, tax: TaxModel) -> dict[str, Any]:
+    g = simulate_portfolio(sig, prices, cfg, initial=INITIAL)
+    n = simulate_portfolio(sig, prices, cfg, tax=tax, initial=INITIAL)
+    return {"gross": _summary(g), "net": _summary(n), "yearly": _yearly(g), "_net_res": n,
+            "_gross_res": g}  # fmt: skip
+
+
+def _strip(d: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in d.items() if not k.startswith("_")}
+
+
 def run_study(
     prices: pd.DataFrame,
     tax: TaxModel,
     *,
     cash_symbol: str = "XEON.MI",
     world: str = "SWDA.MI",
+    us: str = "CSSPX.MI",
     bond: str = "IBGL.MI",
     config: BacktestConfig | None = None,
 ) -> dict[str, Any]:
     config = config or BacktestConfig(rebalance="ME", cost_bps=10.0)
-    # Gross runs must not apply wealth tax either; only the taxed runs do.
+    bench_cfg = BacktestConfig(rebalance="YE", cost_bps=config.cost_bps)
     default = MultiAssetTrend(cash_symbol=cash_symbol)
 
-    def runs(sig) -> tuple[PortfolioResult, PortfolioResult]:
-        return (
-            simulate_portfolio(sig, prices, config, initial=INITIAL),
-            simulate_portfolio(sig, prices, config, tax=tax, initial=INITIAL),
-        )
-
-    d_gross, d_net = runs(default)
-    bench = {
-        "buy_and_hold_world": _StaticWeights({world: 1.0}, "bh_world"),
-        "sixty_forty": _StaticWeights({world: 0.6, bond: 0.4}, "60_40"),
+    # Windows: whole history, and since the world-equity UCITS exists (fair comparison).
+    full_start = prices.index[0] + pd.Timedelta(days=400)  # warm-up for 12m momentum
+    world_start = prices[world].first_valid_index() if world in prices else full_start
+    windows = {
+        "full": (max(full_start, prices[us].first_valid_index()) if us in prices else full_start),
+        "since_world": max(world_start, full_start),
     }
-    bench_cfg = BacktestConfig(rebalance="YE", cost_bps=config.cost_bps)
-    world_start = prices[world].first_valid_index()
+    benches = {
+        "full": {
+            "buy_and_hold_us": _StaticWeights({us: 1.0}, "bh_us"),
+            "sixty_forty_us": _StaticWeights({us: 0.6, bond: 0.4}, "60_40_us"),
+        },
+        "since_world": {
+            "buy_and_hold_world": _StaticWeights({world: 1.0}, "bh_world"),
+            "sixty_forty_world": _StaticWeights({world: 0.6, bond: 0.4}, "60_40_world"),
+        },
+    }
 
-    bench_out = {}
-    for key, sig in bench.items():
-        g = simulate_portfolio(sig, prices.loc[world_start:], bench_cfg, initial=INITIAL)
-        n = simulate_portfolio(sig, prices.loc[world_start:], bench_cfg, tax=tax, initial=INITIAL)
-        bench_out[key] = {"gross": _summary(g), "net": _summary(n), "yearly": _yearly(g)}
+    comparisons: dict[str, Any] = {}
+    default_detail: dict[str, Any] = {}
+    for wname, start in windows.items():
+        win = prices.loc[start:]
+        strat = _pair(_Windowed(default, prices, start), win, config, tax)
+        rows = {"strategy": strat}
+        for bname, bsig in benches[wname].items():
+            if all(c in win for c in bsig.weights):
+                rows[bname] = _pair(bsig, win, bench_cfg, tax)
+        comparisons[wname] = {
+            "start": str(start.date()),
+            "rows": {k: _strip(v) for k, v in rows.items()},
+        }
+        if wname == "full":
+            net_eq = strat["_net_res"].equity
+            default_detail = {
+                "params": default.params(),
+                "net_sharpe": compute_metrics(net_eq.pct_change().dropna())["sharpe"],
+                "tax_history": strat["_net_res"].tax_history,
+                "avg_weights": {k: float(v) for k, v in strat["_gross_res"].weights.mean().items()},
+                "time_mostly_cash": float(
+                    (strat["_gross_res"].weights.get(cash_symbol, 0) > 0.5).mean()
+                ),
+            }
 
     grid_rows = []
+    gstart = windows["full"]
     for params in grid():
-        sig = MultiAssetTrend(cash_symbol=cash_symbol, **params)
-        g, n = runs(sig)
+        sig = _Windowed(MultiAssetTrend(cash_symbol=cash_symbol, **params), prices, gstart)
+        pr = _pair(sig, prices.loc[gstart:], config, tax)
         grid_rows.append(
             {
                 "params": {**params, "lookbacks": list(params["lookbacks"])},
-                "gross": _summary(g),
-                "net": _summary(n),
+                "gross": pr["gross"],
+                "net": pr["net"],
             }
         )
     sharpes = [r["gross"]["sharpe"] for r in grid_rows]
@@ -224,19 +273,9 @@ def run_study(
 
     return {
         "period": {"start": str(prices.index[0].date()), "end": str(prices.index[-1].date())},
-        "world_benchmark_start": str(world_start.date()),
         "config": {**config.__dict__, "initial": INITIAL},
-        "default": {
-            "params": default.params(),
-            "gross": _summary(d_gross),
-            "net": _summary(d_net),
-            "gross_since_world_start": _summary(d_gross, world_start),
-            "yearly_gross": _yearly(d_gross),
-            "tax_history": d_net.tax_history,
-            "avg_weights": {k: float(v) for k, v in d_gross.weights.mean().items()},
-            "time_in_cash": float((d_gross.weights[cash_symbol] > 0.5).mean()),
-        },
-        "benchmarks": bench_out,
+        "default": default_detail,
+        "comparisons": comparisons,
         "grid": {
             "rows": grid_rows,
             "share_positive_sharpe": float(np.mean([s > 0 for s in sharpes])),
@@ -255,7 +294,7 @@ def run_study(
                 }
                 for f in wf.folds
             ],  # fmt: skip
-            "note": "fast engine (gross, daily-rebalanced weights between rebalance dates)",
+            "note": "fast engine, gross of taxes",
         },
     }
 
@@ -275,69 +314,87 @@ def _num(x: float) -> str:
     return f"{x:.2f}".replace(".", ",")
 
 
+LABELS = {
+    "strategy": "Strategia trend",
+    "buy_and_hold_us": "Buy & hold S&P 500",
+    "sixty_forty_us": "60/40 S&P 500 / titoli di Stato",
+    "buy_and_hold_world": "Buy & hold MSCI World",
+    "sixty_forty_world": "60/40 MSCI World / titoli di Stato",
+}
+WINDOW_TITLES = {
+    "full": "Tutto il periodo (include la crisi del 2008)",
+    "since_world": "Dalla quotazione dell'MSCI World UCITS (solo il ciclo 2009-oggi)",
+}
+
+
+def _table(rows: dict[str, Any]) -> list[str]:
+    out = [
+        "| | CAGR lordo | CAGR netto | Volatilità | Sharpe lordo | Max drawdown | Turnover |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for key, r in rows.items():
+        g, n = r["gross"], r["net"]
+        out.append(
+            f"| {LABELS.get(key, key)} | {_pct(g['cagr'])} | "
+            f"{_pct(n['cagr_after_liquidation_tax'])} | {_pct(g['volatility'])} | "
+            f"{_num(g['sharpe'])} | {_pct(g['max_drawdown'])} | {_pct(g['annual_turnover'])} |"
+        )
+    return out
+
+
 def render_markdown(report: dict[str, Any], panel_meta: list[dict[str, Any]]) -> str:
     d = report["default"]
-    b = report["benchmarks"]
     g = report["grid"]
+    full = report["comparisons"]["full"]["rows"]
     lines = [
         "# Studio: trend multi-asset sull'universo UCITS",
         "",
-        f"Periodo: {report['period']['start']} → {report['period']['end']}. "
-        f"Ribilanciamento mensile, costi {report['config']['cost_bps']:.0f} bps per lato, "
-        "esecuzione alla chiusura successiva alla decisione.",
+        f"Dati {report['period']['start']} → {report['period']['end']}. Ribilanciamento "
+        f"mensile, costi {report['config']['cost_bps']:.0f} bps per lato, esecuzione alla "
+        "chiusura successiva alla decisione. Capitale iniziale 100.000 €. "
+        "**CAGR netto** = dopo tasse annuali (26%, 12,5% sui titoli di Stato, IVAFE 0,2%) e "
+        "dopo aver venduto tutto alla fine.",
         "",
-        "## Risultato della configurazione di default (scelta prima di vedere i dati)",
+        "Configurazione di default scelta prima di vedere i dati: momentum medio 3/6/12 mesi, "
+        "filtro media mobile 200 giorni, 4 strumenti al massimo, pesi a volatilità inversa "
+        "con tetto 25%, resto in liquidità (XEON).",
         "",
-        "| | Strategia | Buy & hold MSCI World | 60/40 |",
-        "|---|---|---|---|",
     ]
-    rows = [
-        ("CAGR lordo", "cagr", "gross", _pct),
-        ("CAGR netto (tasse + liquidazione finale)", "cagr_after_liquidation_tax", "net", _pct),
-        ("Volatilità", "volatility", "gross", _pct),
-        ("Sharpe (lordo, senza risk-free)", "sharpe", "gross", _num),
-        ("Max drawdown", "max_drawdown", "gross", _pct),
-        ("Turnover annuo", "annual_turnover", "gross", _pct),
-    ]
-    for label, key, side, fmt in rows:
-        lines.append(
-            f"| {label} | {fmt(d[side][key])} | {fmt(b['buy_and_hold_world'][side][key])} "
-            f"| {fmt(b['sixty_forty'][side][key])} |"
-        )
+    for wname, comp in report["comparisons"].items():
+        lines += [f"## {WINDOW_TITLES[wname]} — dal {comp['start']}", "", *_table(comp["rows"]), ""]
     lines += [
-        "",
-        f"I benchmark partono dal {report['world_benchmark_start']} (prima data disponibile "
-        "dell'MSCI World). Sullo stesso periodo la strategia ha: CAGR lordo "
-        f"{_pct(d['gross_since_world_start']['cagr'])}, max drawdown "
-        f"{_pct(d['gross_since_world_start']['max_drawdown'])}.",
-        "",
-        f"Tempo prevalentemente in liquidità: {_pct(d['time_in_cash'])}. "
-        f"Tasse pagate in totale (su 100.000 € iniziali): {_eur(d['net']['taxes_paid_total'])}.",
+        f"Sharpe della strategia al netto delle tasse: {_num(d['net_sharpe'])}. "
+        f"Tasse pagate in totale: {_eur(full['strategy']['net']['taxes_paid_total'])}. "
+        f"Mesi prevalentemente in liquidità: {_pct(d['time_mostly_cash'])}.",
         "",
         "## Robustezza dei parametri",
         "",
-        f"Griglia di {len(g['rows'])} combinazioni. Sharpe > 0 nel "
+        f"Griglia di {len(g['rows'])} combinazioni sul periodo completo. Sharpe > 0 nel "
         f"{_pct(g['share_positive_sharpe'])} dei casi; Sharpe mediano "
         f"{_num(g['median_sharpe'])}; CAGR netto mediano "
         f"{_pct(g['median_net_cagr'])} (min {_pct(g['min_net_cagr'])}, "
         f"max {_pct(g['max_net_cagr'])}).",
         "",
-        "## Walk-forward (fuori campione)",
+        "## Walk-forward (fuori campione, lordo)",
         "",
         f"CAGR {_pct(report['walk_forward']['oos']['cagr'])}, Sharpe "
         f"{_num(report['walk_forward']['oos']['sharpe'])}, max drawdown "
         f"{_pct(report['walk_forward']['oos']['max_drawdown'])}, su "
         f"{len(report['walk_forward']['folds'])} anni di test.",
         "",
-        "## Rendimenti per anno (lordi)",
+        "## Rendimenti per anno (lordi, periodo completo)",
         "",
-        "| Anno | Strategia | Buy & hold World |",
-        "|---|---|---|",
+        "| Anno | Strategia | Buy & hold S&P 500 | 60/40 |",
+        "|---|---|---|---|",
     ]
-    bh = b["buy_and_hold_world"]["yearly"]
-    for year, r in d["yearly_gross"].items():
-        bh_r = bh.get(year) if bh.get(year) is not None else bh.get(str(year))
-        lines.append(f"| {year} | {_pct(r)} | {_pct(bh_r) if bh_r is not None else '—'} |")
+    ys = full["strategy"]["yearly"]
+    bh = full.get("buy_and_hold_us", {}).get("yearly", {})
+    sf = full.get("sixty_forty_us", {}).get("yearly", {})
+    for year, r in ys.items():
+        lines.append(
+            f"| {year} | {_pct(r)} | {_pct(bh[year]) if year in bh else '—'} | "
+            f"{_pct(sf[year]) if year in sf else '—'} |"
+        )
     lines += [
         "",
         "## Dati",

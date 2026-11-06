@@ -44,3 +44,22 @@ def test_top_k_limits_number_of_holdings() -> None:
     px = _prices_with_cash()
     w = MultiAssetTrend(top_k=2, cash_symbol="CASH").compute(px)
     assert ((w.drop(columns="CASH") > 0).sum(axis=1) <= 2).all()
+
+
+def test_hold_buffer_reduces_switching() -> None:
+    px = _prices_with_cash()
+
+    def switches(sig: MultiAssetTrend) -> int:
+        held = sig.compute(px).drop(columns="CASH") > 0
+        return int((held != held.shift()).sum().sum())
+
+    base = switches(MultiAssetTrend(top_k=2, cash_symbol="CASH"))
+    buffered = switches(MultiAssetTrend(top_k=2, hold_buffer=2, cash_symbol="CASH"))
+    assert buffered <= base
+
+
+def test_equal_weighting() -> None:
+    px = _prices_with_cash()
+    w = MultiAssetTrend(top_k=4, weighting="equal", cash_symbol="CASH").compute(px)
+    risky = w.drop(columns="CASH")
+    assert set(np.unique(risky.to_numpy().round(10))) <= {0.0, 0.25}

@@ -21,6 +21,9 @@ class BacktestConfig:
     rebalance: str = "ME"  # pandas offset alias: "ME" month-end, "W-FRI" weekly, "D" daily
     cost_bps: float = 10.0  # one-way cost (commission + spread + slippage), basis points
     cash_rate: float = 0.0  # annual yield on uninvested capital
+    # No-trade band (portfolio simulator only): an asset is traded at a rebalance only if its
+    # weight is off target by more than this, or it must be fully entered or exited.
+    rebalance_band: float = 0.0
 
 
 @dataclass

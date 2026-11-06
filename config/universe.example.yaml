@@ -12,7 +12,7 @@ instruments:
     asset_class: equity
     proxy: URTH
     tax_category: etf_ucits
-  - symbol: CSPX.MI
+  - symbol: CSSPX.MI
     name: iShares Core S&P 500 UCITS (Acc)
     asset_class: equity
     proxy: SPY

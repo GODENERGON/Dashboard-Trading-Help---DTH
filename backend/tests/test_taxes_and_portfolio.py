@@ -104,3 +104,11 @@ def test_tax_model_from_repo_config() -> None:
     assert model.for_symbol("SWDA.MI") == SymbolTax(CAPITAL, 0.26)
     assert model.for_symbol("IBGL.MI").rate == pytest.approx(0.125)
     assert model.for_symbol("SGLD.MI").gains_kind == DIVERSE
+
+
+def test_rebalance_band_reduces_turnover() -> None:
+    px = synthetic_prices(periods=252 * 8)
+    sig = MultiAssetTrend(cash_symbol="BOND_GOV")
+    tight = simulate_portfolio(sig, px, BacktestConfig(rebalance_band=0.0)).turnover.sum()
+    loose = simulate_portfolio(sig, px, BacktestConfig(rebalance_band=0.10)).turnover.sum()
+    assert loose < tight
