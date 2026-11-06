@@ -94,6 +94,8 @@ sistema. Se preferisci non disattivarlo, scrivimi: aspettiamo la versione firmat
 | [`docs/adr/`](docs/adr/) | Architecture Decision Records |
 | [`CLAUDE.md`](CLAUDE.md) | Regole operative per gli agenti AI che lavorano sul repo |
 
+![Panoramica di Dabitur, prototipo](docs/img/panoramica-prototipo.png)
+
 ## Struttura del repository
 
 ```
@@ -109,7 +111,7 @@ backend/            Pacchetto Python `dth` (API, ingestione, segnali, backtest, 
     alerts/         Notifiche
     api/            FastAPI
   tests/            Test unitari + harness anti-lookahead
-frontend/           App desktop Tauri + React (da costruire, vedi docs/DESIGN.md)
+frontend/           Interfaccia React (prototipo metallo liquido; shell Tauri in M1)
 config/             Universo, registro fonti, regole di evidenza, alert (esempi)
 docs/               Documentazione di progetto
 ```

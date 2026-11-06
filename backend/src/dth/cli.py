@@ -105,6 +105,63 @@ def _allocation_study(args: argparse.Namespace) -> None:
     logging.getLogger(__name__).info("report written to %s", out)
 
 
+def _demo_data(args: argparse.Namespace) -> None:
+    """Export real-data JSON for the frontend prototype (regime, products, risk example)."""
+    from dth.backtest import BacktestConfig
+    from dth.backtest.portfolio import simulate_portfolio
+    from dth.highlights import Context
+    from dth.products import build_model_portfolios, load_catalog, rank_catalog
+    from dth.regime import TrendRegimeRule, asset_in_trend, regime_series
+    from dth.signals import CoreSatellite, MultiAssetTrend
+
+    prices = pd.read_csv(args.prices_csv, index_col=0, parse_dates=True)
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+
+    regime = regime_series(prices, "XEON.MI", ("SWDA.MI", "CSSPX.MI"))
+    weekly = regime[regime != "n/d"].resample("W-FRI").last().dropna()
+    detail = TrendRegimeRule().explain(Context(prices=prices, as_of=prices.index[-1]))
+    regime_json = {
+        "as_of": str(prices.index[-1].date()),
+        "current": regime.iloc[-1],
+        "detail": detail.to_dict() if detail else None,
+        "in_trend": {
+            k: bool(v) for k, v in asset_in_trend(prices.drop(columns="XEON.MI")).iloc[-1].items()
+        },
+        "weekly": [{"d": str(d.date()), "s": s} for d, s in weekly.items()],
+    }
+    (out / "regime.json").write_text(json.dumps(regime_json, ensure_ascii=False))
+
+    ranking = rank_catalog(load_catalog(REPO_ROOT / "config" / "products.example.yaml"))
+    (out / "products.json").write_text(json.dumps(ranking, ensure_ascii=False, default=str))
+    models = build_model_portfolios(ranking)
+    (out / "models.json").write_text(json.dumps(models, ensure_ascii=False))
+
+    balanced = CoreSatellite(
+        core=((("SWDA.MI", "CSSPX.MI"), 0.55), (("IBGL.MI",), 0.35), (("SGLD.MI",), 0.10)),
+        satellite=MultiAssetTrend(cash_symbol=None),
+        satellite_share=0.0,
+    )
+    res = simulate_portfolio(balanced, prices, BacktestConfig(rebalance="YE"), initial=100_000)
+    eq = res.equity.loc["2016-01-01":]
+    dd = eq / eq.cummax() - 1
+    vol = eq.pct_change().iloc[-63:].std() * (252**0.5)
+    risk = {
+        "label": "Esempio: bilanciato 55/35/10 da 100.000 € (dati reali, lordo)",
+        "value": float(eq.iloc[-1] / eq.iloc[0] * 100_000),
+        "drawdown_now": float(dd.iloc[-1]),
+        "drawdown_max": float(dd.min()),
+        "vol_3m": float(vol),
+        "equity_monthly": [
+            {"d": str(d.date()), "v": round(float(v), 2)}
+            for d, v in (eq / eq.iloc[0] * 100).resample("ME").last().items()
+        ],
+        "weights": {k: float(v) for k, v in res.weights.iloc[-1].items() if v > 0.001},
+    }
+    (out / "risk.json").write_text(json.dumps(risk, ensure_ascii=False))
+    logging.getLogger(__name__).info("demo data written to %s", out)
+
+
 def _products_report(args: argparse.Namespace) -> None:
     from dth.products import load_catalog, rank_catalog
     from dth.products.report import render_products_markdown
@@ -134,6 +191,10 @@ def main() -> None:
     a.add_argument("--prices-csv", required=True)
     a.add_argument("--out", default="reports/allocation")
     a.set_defaults(func=_allocation_study)
+    d = sub.add_parser("demo-data", help="export real-data JSON for the frontend prototype")
+    d.add_argument("--prices-csv", required=True)
+    d.add_argument("--out", default=str(REPO_ROOT / "frontend" / "src" / "data"))
+    d.set_defaults(func=_demo_data)
     r = sub.add_parser("products-report", help="render the product ranking to Markdown")
     r.add_argument("--out", default=str(REPO_ROOT / "docs" / "PRODUCTS.md"))
     r.set_defaults(func=_products_report)
