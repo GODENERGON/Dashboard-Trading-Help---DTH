@@ -10,7 +10,16 @@ const reduceMotion =
 
 /** Twenty years of market as a liquid-metal process line. Dark segments = defensive regime.
  *  Neutral shades only: the trend_regime rule is informational (pre-registered test failed). */
-export function RegimeBand({ weeks }: { weeks: Week[] }) {
+export type Heat = "none" | "attention" | "critical";
+
+const METAL: Record<Heat, { back: string; tint: string; mark: string }> = {
+  none: { back: "#1a2638", tint: "#dfe6ee", mark: "#c9a55c" },
+  attention: { back: "#3a2a17", tint: "#ffd9a3", mark: "#e59b3a" },
+  critical: { back: "#3d1b14", tint: "#ffb79f", mark: "#f2735a" },
+};
+
+export function RegimeBand({ weeks, heat = "none" }: { weeks: Week[]; heat?: Heat }) {
+  const metal = METAL[heat];
   const shades = useMemo(
     () =>
       weeks.map((w, i) => ({
@@ -24,11 +33,11 @@ export function RegimeBand({ weeks }: { weeks: Week[] }) {
   const first = weeks[0]?.d.slice(0, 4);
   return (
     <figure style={{ margin: 0 }}>
-      <div className="band" role="img" aria-label={`Regime di mercato settimanale dal ${first} a oggi`}>
+      <div className="band" data-heat={heat} role="img" aria-label={`Regime di mercato settimanale dal ${first} a oggi`}>
         <LiquidMetal
           style={{ width: "100%", height: "100%" }}
-          colorBack="#1a2638"
-          colorTint="#dfe6ee"
+          colorBack={metal.back}
+          colorTint={metal.tint}
           shape="none"
           repetition={1.2}
           softness={0.9}
@@ -42,16 +51,17 @@ export function RegimeBand({ weeks }: { weeks: Week[] }) {
         />
         <svg viewBox={`0 0 ${n} 100`} preserveAspectRatio="none" aria-hidden="true">
           {shades.map((s) => (s.fill === "none" ? null : <rect key={s.i} x={s.i} y={0} width={1.05} height={100} fill={s.fill} />))}
-          <rect x={n - 3} y={0} width={3} height={100} fill="#c9a55c" />
+          <rect x={n - 3} y={0} width={3} height={100} fill={metal.mark} />
         </svg>
       </div>
       <div className="band-legend" aria-hidden="true">
         <span className="start">{first}</span>
         {MARKS.map((y) => {
           const i = weeks.findIndex((w) => w.d.startsWith(y));
-          return i < 0 ? null : <span key={y} style={{ left: `${(i / n) * 100}%` }}>{y}</span>;
+          if (i < 0 || i / n > 0.93) return null; // keep clear of the end-date label
+          return <span key={y} style={{ left: `${(i / n) * 100}%` }}>{y}</span>;
         })}
-        <span className="end">oggi</span>
+        <span className="end" style={{ color: metal.mark }}>{weeks[n - 1]?.d.split("-").reverse().join("/")}</span>
       </div>
       <figcaption className="band-note">
         Ogni linea verticale è una settimana. Le fasce scure sono i periodi in cui il mercato era in

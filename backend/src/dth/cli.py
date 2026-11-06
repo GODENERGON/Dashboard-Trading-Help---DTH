@@ -114,9 +114,13 @@ def _demo_data(args: argparse.Namespace) -> None:
     from dth.regime import TrendRegimeRule, asset_in_trend, regime_series
     from dth.signals import CoreSatellite, MultiAssetTrend
 
-    prices = pd.read_csv(args.prices_csv, index_col=0, parse_dates=True)
+    full = pd.read_csv(args.prices_csv, index_col=0, parse_dates=True)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    if args.scenario_date:
+        _scenario(full.loc[: args.scenario_date], out / "scenario.json")
+        return
+    prices = full
 
     regime = regime_series(prices, "XEON.MI", ("SWDA.MI", "CSSPX.MI"))
     weekly = regime[regime != "n/d"].resample("W-FRI").last().dropna()
@@ -162,6 +166,94 @@ def _demo_data(args: argparse.Namespace) -> None:
     logging.getLogger(__name__).info("demo data written to %s", out)
 
 
+def _balanced_equity(prices: pd.DataFrame) -> pd.Series:
+    from dth.backtest import BacktestConfig
+    from dth.backtest.portfolio import simulate_portfolio
+    from dth.signals import CoreSatellite, MultiAssetTrend
+
+    balanced = CoreSatellite(
+        core=((("SWDA.MI", "CSSPX.MI"), 0.55), (("IBGL.MI",), 0.35), (("SGLD.MI",), 0.10)),
+        satellite=MultiAssetTrend(cash_symbol=None),
+        satellite_share=0.0,
+    )
+    res = simulate_portfolio(balanced, prices, BacktestConfig(rebalance="YE"), initial=100_000)
+    return res.equity.loc["2016-01-01":]
+
+
+def _scenario(prices: pd.DataFrame, path: Path) -> None:
+    """A past day replayed through the highlight rules (real prices; VIX is a stated fact)."""
+    from dth.highlights import Highlight
+    from dth.regime import asset_in_trend, regime_series
+    from dth.risk import DEFAULT_LIMITS, drawdown_state
+
+    as_of = prices.index[-1]
+    regime = regime_series(prices, "XEON.MI", ("SWDA.MI", "CSSPX.MI"))
+    weekly = regime[regime != "n/d"].resample("W-FRI").last().dropna()
+    eq = _balanced_equity(prices)
+    dd = eq / eq.cummax() - 1
+    state = drawdown_state(eq, DEFAULT_LIMITS)
+    highlights = []
+    if state.value != "normal":
+        level = "critical" if state.value == "stop" else "attention"
+        limit = DEFAULT_LIMITS.dd_stop if level == "critical" else DEFAULT_LIMITS.dd_warning
+        now_pct = f"{dd.iloc[-1] * 100:.1f}%".replace(".", ",")
+        highlights.append(
+            Highlight(
+                rule_id="drawdown_stop" if level == "critical" else "drawdown_warning",
+                level=level,
+                title=f"Portafoglio a {now_pct} dal massimo",
+                explanation=(
+                    f"Il drawdown del portafoglio ({now_pct}) ha superato il limite di "
+                    f"{limit * 100:.0f}% della policy di rischio. La policy prevede di "
+                    "dimezzare l'esposizione e rivedere il portafoglio a mano."
+                ),
+                as_of=str(as_of.date()),
+                data={
+                    "drawdown": float(dd.iloc[-1]),
+                    "limit": limit,
+                    "peak": str(eq.idxmax().date()),
+                },  # fmt: skip
+            ).to_dict()
+        )
+    highlights.append(
+        Highlight(
+            rule_id="vix_backwardation",
+            level="attention",
+            title="Paura più alta nel breve che nel medio periodo",
+            explanation=(
+                "L'indice di volatilità VIX a 1 mese è sopra quello a 3 mesi da più di 2 sedute: "
+                "il mercato si aspetta turbolenza immediata. Dato storico noto del marzo 2020; "
+                "la fonte Cboe non è ancora collegata in Dabitur."
+            ),
+            as_of=str(as_of.date()),
+            data={"source": "cboe (illustrativo)"},
+        ).to_dict()
+    )
+    payload = {
+        "as_of": str(as_of.date()),
+        "label": "Esempio: 18 marzo 2020, crollo Covid",
+        "current": regime.iloc[-1],
+        "in_trend": {
+            k: bool(v) for k, v in asset_in_trend(prices.drop(columns="XEON.MI")).iloc[-1].items()
+        },
+        "weekly": [{"d": str(d.date()), "s": st} for d, st in weekly.items()],
+        "risk": {
+            "label": "Esempio: bilanciato 55/35/10 da 100.000 € (dati reali, lordo)",
+            "value": float(eq.iloc[-1] / eq.iloc[0] * 100_000),
+            "drawdown_now": float(dd.iloc[-1]),
+            "drawdown_max": float(dd.min()),
+            "vol_3m": float(eq.pct_change().iloc[-63:].std() * (252**0.5)),
+            "equity_monthly": [
+                {"d": str(d.date()), "v": round(float(v), 2)}
+                for d, v in (eq / eq.iloc[0] * 100).resample("ME").last().items()
+            ],
+        },
+        "highlights": highlights,
+    }
+    path.write_text(json.dumps(payload, ensure_ascii=False))
+    logging.getLogger(__name__).info("scenario written to %s", path)
+
+
 def _products_report(args: argparse.Namespace) -> None:
     from dth.products import load_catalog, rank_catalog
     from dth.products.report import render_products_markdown
@@ -194,6 +286,7 @@ def main() -> None:
     d = sub.add_parser("demo-data", help="export real-data JSON for the frontend prototype")
     d.add_argument("--prices-csv", required=True)
     d.add_argument("--out", default=str(REPO_ROOT / "frontend" / "src" / "data"))
+    d.add_argument("--scenario-date", help="replay a past day through the rules (scenario.json)")
     d.set_defaults(func=_demo_data)
     r = sub.add_parser("products-report", help="render the product ranking to Markdown")
     r.add_argument("--out", default=str(REPO_ROOT / "docs" / "PRODUCTS.md"))

@@ -6,6 +6,10 @@ liquido" ([`../docs/DESIGN.md`](../docs/DESIGN.md)). In M1 verrà incluso nella 
 
 ![Panoramica, prototipo](../docs/img/panoramica-prototipo.png)
 
+Con evidenze attive (selettore in alto a destra, "Esempio: crollo di marzo 2020"):
+
+![Panoramica con evidenze](../docs/img/panoramica-evidenze-marzo-2020.png)
+
 ```bash
 npm ci
 npm run dev      # http://localhost:5173
@@ -19,6 +23,7 @@ npm run build    # controllo tipi + build di produzione
 ```bash
 cd ../backend
 python -m dth.cli demo-data --prices-csv <prices_eur.csv dello studio research>
+python -m dth.cli demo-data --prices-csv <...> --scenario-date 2020-03-18   # scenario.json
 ```
 
 In M1 questi file saranno sostituiti dalle chiamate all'API locale (`/regime/trend`,

@@ -148,6 +148,23 @@ solo dalle regole di evidenza. Contrasto verificato (WCAG AA, ≥ 4,5:1) per tut
 - **Non** su tabelle, grafici e testi: lì il metallo è solo un gradiente spazzolato statico in
   CSS, per non affaticare la lettura né la scheda video.
 
+### Come appare un'evidenza
+![Esempio: 18 marzo 2020](img/panoramica-evidenze-marzo-2020.png)
+
+Quando una o più regole di evidenza sono attive:
+- **Il metallo si scalda**: il nastro della banda di regime e la striscia del logo passano da
+  cromo freddo a toni fusi (ambra per `attention`, rosso di colata per `critical`), con un alone
+  dello stesso colore. Il livello usato è sempre il **più alto tra quelli attivi**.
+- **Il pannello interessato si accende**: bordo e alone del colore del livello, etichetta
+  "Attenzione" o "Critico" accanto al titolo, il numero coinvolto colorato (es. il drawdown) e,
+  nei misuratori, i segni dei limiti di policy.
+- **Il pannello "Evidenze attive"** elenca le regole scattate, le critiche per prime; ogni voce
+  ha un "Perché?" che mostra spiegazione, regola, data e dati usati.
+- **Sotto il titolo di regime** compare il conteggio ("1 evidenza critica, 1 di attenzione").
+- Il titolo di regime resta neutro: il regime è informativo (test pre-registrato).
+- Senza evidenze attive l'interfaccia torna metallo freddo e il pannello mostra uno stato vuoto
+  che spiega cosa succederà.
+
 ### Movimento e prestazioni
 - Lo shader gira solo nella banda di regime e nell'avvio, a 30 fps massimo, e si ferma quando
   la finestra non è in primo piano.
