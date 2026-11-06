@@ -29,7 +29,11 @@ Poche cose, ma installabili e funzionanti dall'inizio alla fine.
 - ✅ Strategia trend riscritta da zero (`MultiAssetTrend`), simulatore con tasse italiane,
   studio su dati reali via workflow `research`
   ([esito](research/2026-11-06-ucits-trend.md): non validata al netto delle tasse).
-- Prossimo: variante core-satellite o trend più lento, con parametri fissati prima del test.
+- ✅ Core-satellite e indicatore di regime pre-registrati e testati
+  ([esito](research/2026-11-06-core-satellite-results.md)): core-satellite non validato;
+  regime solo informativo (endpoint `/regime/trend`, regola `trend_regime` disattivata).
+- Prossimo, se si continua la ricerca: trend solo sull'oro (ETC, redditi diversi) o uscite più
+  lente, sempre pre-registrati.
 - Tab **Strategie** con schede di validazione reali.
 - Tab **Portafoglio**: conti con inserimento manuale e import CSV (DEGIRO, Scalable, generico),
   limiti di rischio (crypto ≤ 10%, startup ≤ 15%), quota non liquidabile, stress test

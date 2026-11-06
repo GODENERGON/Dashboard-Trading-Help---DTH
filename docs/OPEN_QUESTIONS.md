@@ -32,8 +32,9 @@ Ogni decisione presa qui diventa un ADR in [`adr/`](adr/).
 7. **Lingua UI:** italiano, con i termini tecnici standard in inglese (proposta).
 10. **Design:** confermare la direzione "Sala controllo" di [`DESIGN.md`](DESIGN.md), tema chiaro
     come principale.
-11. **Prossima strategia:** dopo lo [studio del 2026-11-06](research/2026-11-06-ucits-trend.md),
-    provare core-satellite (nucleo 60/40 comprato e tenuto + quota trend) o un trend più lento?
+11. **Ricerca strategie:** core-satellite e regime testati
+    ([esito](research/2026-11-06-core-satellite-results.md)). Continuare con trend sull'oro o
+    uscite più lente, oppure fermarsi e concentrarsi sull'app?
 12. **Capitale e limiti:** confermare i default di [`RISK_POLICY.md`](RISK_POLICY.md) in base al
     capitale iniziale.
 16. **Canale di feedback:** a quale indirizzo email arriva il feedback del tester?

@@ -40,6 +40,11 @@ ignorata, IVAFE 0,2% su tutto il detenuto a fine anno.
 | Data | Strategia | Esito | Documento |
 |---|---|---|---|
 | 2026-11-06 | Trend multi-asset UCITS (`MultiAssetTrend`) | `research`: protegge nei crolli ma al netto delle tasse rende meno di un 60/40 | [studio](research/2026-11-06-ucits-trend.md) |
+| 2026-11-06 | Core-satellite 70/30 (`CoreSatellite`), pre-registrato | `research`: drawdown −23% vs −32%, ma CAGR e Sharpe netti sotto il 60/40 | [pre-registrazione](research/2026-11-06-preregistration-core-satellite-and-regime.md), [esito](research/2026-11-06-core-satellite-results.md) |
+| 2026-11-06 | Indicatore di regime trend, pre-registrato | Solo informativo: raddoppia la probabilità di cali ≥ 10% ma non anticipa rendimenti più bassi | [esito](research/2026-11-06-core-satellite-results.md) |
+
+**Regola di lavoro:** ogni nuovo test si pre-registra in `docs/research/` (ipotesi, parametri,
+criteri) e si pubblica nel repository **prima** di eseguirlo.
 
 ## Criteri minimi per lo stato `validated`
 

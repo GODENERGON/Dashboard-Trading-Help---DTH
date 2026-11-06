@@ -30,6 +30,7 @@ delle fonti.
 |---|---|---|
 | Banda di regime | 20 anni di mercato colorati per regime (HMM su rendimenti e volatilità) | 🅸 |
 | Regime corrente | Trend, regime di volatilità, struttura a termine VIX/VIX3M, spread HY, curva 10y-2y, breadth | 🅸 |
+| Regime di trend | Stato positivo / misto / difensivo e strumenti in trend (`/regime/trend`). **Solo informativo**: il test pre-registrato non ne giustifica la colorazione ([esito](research/2026-11-06-core-satellite-results.md)) | 🅸 |
 | Evidenze attive | Elenco delle regole accese, ciascuna con "perché?" | 🅸 |
 | Segnali validati | Pesi target delle strategie `validated`+ e variazioni | 🆂 |
 | Rischio | Drawdown, esposizione, volatilità, valuta, concentrazione (tutte le piattaforme) | 🅸 |

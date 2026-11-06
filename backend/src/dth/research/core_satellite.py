@@ -15,6 +15,7 @@ from dth.regime import DEFENSIVE, MIXED, POSITIVE, evaluate_regime, regime_serie
 from dth.research.ucits_trend import (
     INITIAL,
     LABELS,
+    _eur,
     _num,
     _pair,
     _pct,
@@ -197,9 +198,7 @@ def render_core_satellite(report: dict[str, Any]) -> str:
             lines.append(
                 f"| {label} | {_pct(g['cagr'])} | {_pct(n['cagr_after_liquidation_tax'])} | "
                 f"{_num(n['sharpe'])} | {_pct(g['max_drawdown'])} | "
-                f"{_pct(g['annual_turnover'])} | "
-                f"{n['taxes_paid_total']:,.0f} €".replace(",", ".")
-                + " |"
+                f"{_pct(g['annual_turnover'])} | {_eur(n['taxes_paid_total'])} |"
             )
     rg = report["regime"]
     lines += [

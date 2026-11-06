@@ -127,9 +127,9 @@ make backtest       # esegue un walk-forward di esempio su dati sintetici
 
 ## Stato
 
-**Fase 0 — Harness** completata. Prima strategia testata su dati reali
-([studio del 2026-11-06](docs/research/2026-11-06-ucits-trend.md)): non validata al netto delle
-tasse. L'applicativo (UI e pannelli) non è ancora costruito. Prossimo passo: la prima build
+**Fase 0 — Harness** completata. Strategie testate su dati reali, nessuna validata al netto
+delle tasse finora: [trend multi-asset](docs/research/2026-11-06-ucits-trend.md),
+[core-satellite e regime](docs/research/2026-11-06-core-satellite-results.md) (pre-registrati). L'applicativo (UI e pannelli) non è ancora costruito. Prossimo passo: la prima build
 installabile per un tester (milestone M1).
 
 ## Disclaimer
