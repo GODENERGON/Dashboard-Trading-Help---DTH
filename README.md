@@ -12,12 +12,13 @@ dell'utente, e **si colora solo quando una regola esplicita trova qualcosa da co
 
 ## Installazione su Windows
 
-> Serve Windows 10 o 11 a 64 bit; non serve installare altro. L'app pesa circa 150 MB una volta
-> installata e non chiede la password di amministratore.
+> Serve Windows 10 o 11 a 64 bit; non serve installare altro. Il file da scaricare pesa circa 60 MB; installata,
+> l'app occupa circa 300 MB e non chiede la password di amministratore.
 
 ### 1. Scarica l'installer
 
-1. Apri la pagina [Releases](https://github.com/GODENERGON/Dashboard-Trading-Help---DTH/releases).
+1. Apri la pagina [Releases](https://github.com/GODENERGON/Dashboard-Trading-Help---DTH/releases)
+   (versione attuale: [v0.1.0, di prova](https://github.com/GODENERGON/Dashboard-Trading-Help---DTH/releases/tag/v0.1.0)).
 2. Nell'ultima versione, sotto **Assets**, scarica il file **`Dabitur-Setup-….exe`**
    (per esempio `Dabitur-Setup-0.1.0.exe`).
 
