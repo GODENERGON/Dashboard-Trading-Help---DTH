@@ -11,7 +11,6 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-import duckdb
 import pandas as pd
 
 _SAFE = re.compile(r"[^A-Za-z0-9._-]")
@@ -77,5 +76,7 @@ class ParquetStore:
 
     def query(self, sql: str) -> pd.DataFrame:
         """Run DuckDB SQL; ``{root}`` in the query is replaced by the lake path."""
+        import duckdb  # lazy: only SQL queries need it (not in the desktop build)
+
         with duckdb.connect() as con:
             return con.execute(sql.replace("{root}", self.root.as_posix())).df()

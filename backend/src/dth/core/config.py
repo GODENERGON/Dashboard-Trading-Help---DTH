@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     config_dir: Path = REPO_ROOT / "config"
     universe_file: str = "universe.example.yaml"
     auto_refresh: bool = True  # download fresh prices at startup (off in tests)
+    api_token: str | None = None  # set by the desktop shell; required on every call but /health
 
     fred_api_key: str | None = None
     telegram_bot_token: str | None = None

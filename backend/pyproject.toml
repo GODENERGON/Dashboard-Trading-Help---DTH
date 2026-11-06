@@ -30,9 +30,11 @@ justetf = ["justetf-scraping @ git+https://github.com/druzsan/justetf-scraping.g
 portfolio = ["skfolio>=1.12"]
 portals = ["ccxt>=4.5"]
 dev = ["pytest>=8", "ruff>=0.5"]
+desktop = ["yfinance>=0.2.40", "pyinstaller>=6.10"]
 
 [project.scripts]
 dth = "dth.cli:main"
+dabitur-backend = "dth.sidecar:main"
 
 [tool.hatch.metadata]
 allow-direct-references = true

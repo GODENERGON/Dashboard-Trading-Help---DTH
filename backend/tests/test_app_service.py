@@ -127,3 +127,42 @@ def test_overview_endpoint(svc, monkeypatch) -> None:
     assert client.get("/status").json()["source"].startswith("seme")
     body = client.get("/overview").json()
     assert body["data_status"]["as_of"] == body["as_of"]
+
+
+def test_token_required_when_set(svc, monkeypatch) -> None:
+    import dth.api.main as api
+    from dth.core.config import get_settings
+
+    monkeypatch.setattr(api, "data_service", lambda: svc)
+    monkeypatch.setattr(get_settings(), "api_token", "s3cret")
+    client = TestClient(api.app)
+    assert client.get("/health").status_code == 200
+    assert client.get("/status").status_code == 401
+    assert client.get("/status", headers={"X-Dabitur-Token": "s3cret"}).status_code == 200
+
+
+def test_feedback_saved_locally(tmp_path, monkeypatch) -> None:
+    import json
+
+    import dth.api.main as api
+    from dth.core.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "data_dir", tmp_path)
+    client = TestClient(api.app)
+    r = client.post("/feedback", json={"message": "Non capisco la banda", "view": "panoramica"})
+    assert r.status_code == 200
+    line = (tmp_path / "feedback" / "feedback.jsonl").read_text().strip()
+    assert json.loads(line)["message"] == "Non capisco la banda"
+    assert client.post("/feedback", json={"message": ""}).status_code == 422
+
+
+def test_sidecar_environment(tmp_path, monkeypatch) -> None:
+    from dth.sidecar import configure_environment
+
+    monkeypatch.delenv("DTH_CONFIG_DIR", raising=False)
+    monkeypatch.setenv("DTH_DATA_DIR", str(tmp_path / "d"))
+    configure_environment(tmp_path / "bundle")
+    import os
+
+    assert os.environ["DTH_CONFIG_DIR"] == str(tmp_path / "bundle" / "config")
+    assert (tmp_path / "d").is_dir()

@@ -8,7 +8,10 @@ from functools import lru_cache
 from typing import Any
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
 from dth import __version__
 from dth.app.data_service import DataService
@@ -42,6 +45,50 @@ async def _lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title=APP_NAME, version=__version__, lifespan=_lifespan)
+
+# Origins of the Tauri webview (Windows uses http://tauri.localhost) and of `npm run dev`.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["tauri://localhost", "http://tauri.localhost", "http://localhost:5173"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["X-Dabitur-Token", "Content-Type"],
+)
+TOKEN_HEADER = "X-Dabitur-Token"
+OPEN_PATHS = {"/health"}
+
+
+@app.middleware("http")
+async def _require_token(request: Request, call_next):  # type: ignore[no-untyped-def]
+    """Only the desktop shell that started the sidecar knows the token (other local apps don't)."""
+    token = get_settings().api_token
+    if (
+        token
+        and request.method != "OPTIONS"
+        and request.url.path not in OPEN_PATHS
+        and request.headers.get(TOKEN_HEADER) != token
+    ):
+        return JSONResponse({"detail": "token mancante o errato"}, status_code=401)
+    return await call_next(request)
+
+
+class Feedback(BaseModel):
+    message: str = Field(min_length=1, max_length=5000)
+    view: str | None = Field(default=None, max_length=50)
+    rating: int | None = Field(default=None, ge=1, le=5)
+
+
+@app.post("/feedback")
+def feedback(item: Feedback) -> dict[str, Any]:
+    """Store feedback locally (the tester can also send it by e-mail from the UI)."""
+    import json
+    from datetime import UTC, datetime
+
+    path = get_settings().data_dir / "feedback" / "feedback.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    record = {"at": datetime.now(UTC).isoformat(), "version": __version__, **item.model_dump()}
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    return {"saved": True, "path": str(path)}
 
 
 @app.get("/status")
